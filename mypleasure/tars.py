@@ -2,7 +2,6 @@ import urllib
 import datetime
 import requests
 import bs4
-from mypleasure.utils.timer import Timer
 from mypleasure.providers import factory
 
 
