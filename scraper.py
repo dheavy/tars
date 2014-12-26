@@ -5,6 +5,11 @@ import argparse
 from mypleasure.tars import Tars
 
 def parse_args():
+  """Parse argument passed in CLI
+
+  Returns:
+    The tuple of arguments (url, id, requester, workers) passed in CLI.
+  """
   parser = argparse.ArgumentParser(description='Crawls and scrapes content from websites ("providers").')
   parser.add_argument('--url', type=str, help='url to crawl and scrape')
   parser.add_argument('--id', type=int, help='job id in queue')

@@ -5,6 +5,7 @@ from mypleasure.providers.probes.base import BaseProbe
 
 
 class Youporn(BaseProbe):
+  """A probe class to crawl and scrape Youporn videos."""
 
   name = "Youporn"
 

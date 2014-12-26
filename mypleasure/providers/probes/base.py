@@ -1,4 +1,12 @@
 class BaseProbe:
+  """The Base probe all other probes should subclass.
+
+  Contains stubs of methods used by probes classes.
+
+  Args:
+    url: The URL TARS is trying to scrape.
+
+  """
 
   name = "BaseProbe"
 
