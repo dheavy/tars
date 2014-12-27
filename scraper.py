@@ -4,6 +4,8 @@ import os
 import argparse
 from mypleasure.tars import Tars
 from configparser import ConfigParser
+from multiprocessing.pool import ThreadPool as Pool
+
 
 def parse_args():
   """Parse argument passed in CLI.
@@ -24,22 +26,27 @@ def parse_args():
 
 if __name__ == '__main__':
   options = parse_args()
+
   tars = Tars()
-  tars.send_on_mission('http://www.youporn.com/watch/9565375/lesbea-busty-lesbian-has-g-spot-orgasm-during-soapy-romp-in-the-bath-tub/?from=vbwn')
-  tars.send_on_mission('http://www.youporn.com/watch/9627203/a-class-in-sexercise/?from=vbwn')
-  tars.send_on_mission('http://www.youporn.com/watch/10717535/mrs-santa-gets-a-cream-pie-for-xxxmas/')
-  tars.send_on_mission('http://www.youporn.com/watch/9082257/like-my-naughty-miss-santa-outfit-now-watch-me-suck-and-fuck-you-in-it/')
-  tars.send_on_mission('http://www.youporn.com/watch/10781107/porn-films-3d-explicit-dildo-gymnastics/')
-  tars.send_on_mission('http://www.youporn.com/watch/10356485/doubleviewcasting-mila-regular/')
-  tars.send_on_mission('http://www.youporn.com/watch/8395983/lone-cock-rider-playvision/')
-  tars.send_on_mission('http://www.youporn.com/watch/10778551/rachel-loves-to-please/')
-  tars.send_on_mission('http://www.youporn.com/watch/10774689/love-creampie-exotic-busty-beauty-needs-two-men-to-satisfy-her/')
-  tars.send_on_mission('http://www.youporn.com/watch/9442047/her-pussy-gets-very-creamy-masturbating-in-gym/')
-  tars.send_on_mission('http://www.youporn.com/watch/10314337/evilangel-sheena-shaw-s-anal-insertion-and-rim-job/')
-  tars.send_on_mission('http://www.youporn.com/watch/10350691/big-ass-blonde-beauty-alexis-texas-is-a-whore/')
-  tars.send_on_mission('http://www.youporn.com/watch/10501033/horny-redhead-faye-reagan-fucks-her-twat-with-a-toy/')
-  tars.send_on_mission('http://www.youporn.com/watch/10621025/do-you-have-any-extra-room-for-my-tongue-critical-x/')
-  tars.send_on_mission('http://www.youporn.com/watch/10684159/lesbian-sex-shower/')
-  tars.send_on_mission('http://www.youporn.com/watch/10221345/sperm-swap-three-way-with-two-hot-babes-and-sperm-swap/')
-  tars.send_on_mission('http://www.youporn.com/watch/10720537/femaleagent-sexy-agents-asshole-licked-and-her-perfect-pussy-fucked-in-doggy/')
-  tars.send_on_mission('http://www.youporn.com/watch/10338569/latina-pornstar-mari-possa-with-huge-natural-dd-boobs-masturbates/')
+
+  pool = Pool(options.workers)
+  pool.map(tars.send_on_mission,
+           ('http://www.youporn.com/watch/10436027/18yo-busty-buffy-fucks-for-cum-on-tits/?from=related3&al=2&from_id=10436027&pos=5',
+            'http://www.youporn.com/watch/9565375/lesbea-busty-lesbian-has-g-spot-orgasm-during-soapy-romp-in-the-bath-tub/?from=vbwn',
+            'http://www.youporn.com/watch/9627203/a-class-in-sexercise/?from=vbwn',
+            'http://www.youporn.com/watch/10717535/mrs-santa-gets-a-cream-pie-for-xxxmas/',
+            'http://www.youporn.com/watch/9082257/like-my-naughty-miss-santa-outfit-now-watch-me-suck-and-fuck-you-in-it/',
+            'http://www.youporn.com/watch/10781107/porn-films-3d-explicit-dildo-gymnastics/',
+            'http://www.youporn.com/watch/10356485/doubleviewcasting-mila-regular/',
+            'http://www.youporn.com/watch/8395983/lone-cock-rider-playvision/',
+            'http://www.youporn.com/watch/10778551/rachel-loves-to-please/',
+            'http://www.youporn.com/watch/10774689/love-creampie-exotic-busty-beauty-needs-two-men-to-satisfy-her/',
+            'http://www.youporn.com/watch/9442047/her-pussy-gets-very-creamy-masturbating-in-gym/',
+            'http://www.youporn.com/watch/10314337/evilangel-sheena-shaw-s-anal-insertion-and-rim-job/',
+            'http://www.youporn.com/watch/10350691/big-ass-blonde-beauty-alexis-texas-is-a-whore/',
+            'http://www.youporn.com/watch/10501033/horny-redhead-faye-reagan-fucks-her-twat-with-a-toy/',
+            'http://www.youporn.com/watch/10621025/do-you-have-any-extra-room-for-my-tongue-critical-x/',
+            'http://www.youporn.com/watch/10684159/lesbian-sex-shower/',
+            'http://www.youporn.com/watch/10221345/sperm-swap-three-way-with-two-hot-babes-and-sperm-swap/',
+            'http://www.youporn.com/watch/10720537/femaleagent-sexy-agents-asshole-licked-and-her-perfect-pussy-fucked-in-doggy/',
+            'http://www.youporn.com/watch/10338569/latina-pornstar-mari-possa-with-huge-natural-dd-boobs-masturbates/'))
