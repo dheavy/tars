@@ -1,7 +1,7 @@
 MyPleasu.re - Scraper CLI (Python)
 =================================
 
-### A Python based command line interface application, powered by Node.js, that crawls and scrapes content from websites ("providers").
+### A Python based command line interface application, replacing Node.js, that crawls and scrapes content from websites ("providers").
 
 ---
 
