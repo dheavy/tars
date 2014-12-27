@@ -22,3 +22,12 @@ The app will look for an environment variable named `MYPLSR_ENV` to determine th
 - Set this variable on your machine (to `dev`). Ensure the production server has it set too (to `prod`).
 - Create a `settings.cfg` file in `./settings/`. **This file will not be version controlled** so it can host sensitive data.
 - Copy / inspire yourself from the content of `settings.example.cfg` to set the appropriate values for your configuration in `settings.cfg`.
+
+#### 3 / Early results
+
+As of commit `95d4e9c` (tag `0.1.0`), a _rough_ test consisting of fetching 20 different videos from Youporn (_test 1: scrape and scroll_) and trying to fetch the same 20 again righ after (_test 2: get cached video documents_) provides the following results:
+
+- 0.909 seconds, average execution time for scraping and getting **all** data for a single video (this actually includes a second fetch/scrape to get the duration of the video!)
+- 0.0125 seconds, average execution time for TARS to know a video is cached in DB, and to return it.
+
+I've left the tests in the commit, so checking it out and running `/usr/bin/time ./scraper.py` from a *nix machine will let you try it out yourself.
