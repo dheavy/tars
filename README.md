@@ -25,7 +25,7 @@ The app will look for an environment variable named `MYPLSR_ENV` to determine th
 
 #### 3 / Early results
 
-As of commit `95d4e9c` (tag `0.1.0`), a _rough_ test consisting of fetching 20 different videos from Youporn (_test 1: scrape and scroll_) and trying to fetch the same 20 again righ after (_test 2: get cached video documents_) provides the following results:
+As of commit `95d4e9c` (tag `0.1.0`), a _rough_ test consisting of fetching 20 different videos from Youporn (_test 1: scrape and scroll_) and trying to fetch the same 20 again right after (_test 2: get cached video documents_) provides the following results:
 
 - 0.909 seconds, average execution time for scraping and getting **all** data for a single video (this actually includes a second fetch/scrape to get the duration of the video!)
 - 0.0125 seconds, average execution time for TARS to know a video is cached in DB, and to return it.
