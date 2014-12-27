@@ -13,11 +13,11 @@ class Youporn(BaseProbe):
     response = requests.get(self.url)
     markup = BeautifulSoup(response.text, 'lxml')
 
-    self.data['id'] = self.__extract_id()
+    id = self.__extract_id()
     self.data['title'] = self.__scrape_title(markup)
     self.data['poster'] = self.__scrape_poster(markup)
     self.data['method'] = 'iframe'
-    self.data['embed_url'] = 'http://www.youporn.com/embed/' + self.data['id']
+    self.data['embed_url'] = 'http://www.youporn.com/embed/' + id
     self.data['duration'] = self.__scrape_duration()
 
     markup.decompose()
@@ -36,6 +36,7 @@ class Youporn(BaseProbe):
 
     markup = BeautifulSoup(response.text, 'lxml')
     duration = markup.select('.videoList .duration')[0].string
+
     markup.decompose()
 
     return duration

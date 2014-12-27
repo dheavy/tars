@@ -2,6 +2,10 @@ import urllib
 import datetime
 import requests
 import bs4
+import datetime
+import hashlib
+from configparser import ConfigParser
+from pymongo import MongoClient
 from mypleasure.providers import factory
 
 
@@ -17,69 +21,152 @@ class Tars:
 
   """
 
-  def __init__(self):
 
+  def __init__(self):
     self.url = None
     self.provider = None
     self.markups = []
 
+    config = ConfigParser()
+    config.read('settings/settings.cfg')
+    host = config.get('mongo', 'host')
+    port = config.getint('mongo', 'port')
+    db = config.get('mongo', 'db')
+    collection = config.get('mongo', 'collection')
+
+    self.mongo = {}
+    self.mongo['client'] = MongoClient(host, port)
+    self.mongo['db'] = self.mongo['client'][db]
+    self.mongo['collection'] = self.mongo['db'][collection]
+
     print("\n*")
-    print("*  TARS, on duty [" + str(datetime.datetime.now()) + "]")
-    print("*  //////////////////////////////////////////")
+    print("*  TARS, is ready [" + str(datetime.datetime.now()) + "]")
+    print("*  ///////////////////////////////////////////")
+
 
   def send_on_mission(self, url):
     """Send TARS on a mission to fetch data from video found on the URL passed as argument.
+
+    TARS will retrieve an object representing a video scraped and stored in database.
+    The hash for each document in the DB is based on the sanitized URL. It serves as an index key
+    to check for existant documents and avoid duplicates. When sent on mission, TARS will first see
+    if the hash exists in any DB entries. If so, it'll return the matching entry. Otherwise it will
+    proceed with scraping and creating a new entry.
 
     Args:
       url: The URL where TARS should find the video.
 
     Returns:
-      A dictionary containing the following attributes related to the video:
-      id, title, poster, method, original_url, embed_url, duration
+      Either dictionary containing the following attributes related to the video:
+      hash, title, poster, method, original_url, embed_url, duration.
+      Or None if the provider does not exist for this video.
+
     """
-    self.url = self.__sanitize_url(url)
+
+    mongo_collection = self.mongo['collection']
+
+    url = self.__sanitize_url(url)
+
+    print("*")
+    print("*  Creating hash:")
+    hash = hashlib.sha256(url.encode('utf-8')).hexdigest()
+    print("*    " + hash)
+
+    stored_video = mongo_collection.find_one({ 'hash': hash })
+
+    if stored_video is not None:
+      print("*")
+      print("*  Found document matching hash in database. Returning:")
+      print("*    - hash: " + hash)
+      print("*    - title: " + stored_video['title'])
+      print("*    - poster: " + stored_video['poster'])
+      print("*    - method: " + stored_video['method'])
+      print("*    - original url: " + stored_video['original_url'])
+      print("*    - embed url: " + stored_video['embed_url'])
+      print("*    - duration: " + stored_video['duration'])
+      print("*")
+      print("*  Done.")
+      print("*")
+      return stored_video
+    else:
+      self.scrape(url, hash)
+
+
+  def scrape(self, url, hash):
+    """Scrape the URL and create a new entry indexed with the hash passed as argument.
+
+    Args:
+      url: A sanitized URL to scrape.
+      hash: A SHA256 hash based on the sanitize URL - serves as index for the document.
+
+    Returns:
+      Either dictionary containing the following attributes related to the video:
+      hash, title, poster, method, original_url, embed_url, duration.
+      Or None if the provider does not exist for this video.
+
+    """
+
+    self.url = url
     self.provider = self.__set_provider(self.url)
 
-    if self.provider == None:
+    if self.provider is None:
       print("*    - no probe found: aborting mission.")
       print("*\n")
-      return
+      return None
     else:
       print("*    - found matching probe: " + self.provider.name)
+      print("*")
 
-    id = self.__get_id()
-    print("*    - id: " + id)
+      print("*  Creating payload:")
+      print("*    - hash: " + hash)
 
-    title = self.__get_title()
-    print("*    - title: " + title)
+      title = self.__get_title()
+      print("*    - title: " + title)
 
-    poster = self.__get_poster()
-    print("*    - poster: " + poster)
+      poster = self.__get_poster()
+      print("*    - poster: " + poster)
 
-    method = self.__get_method()
-    print("*    - method: " + method)
+      method = self.__get_method()
+      print("*    - method: " + method)
 
-    original_url = self.__get_original_url()
-    print("*    - original url: " + original_url)
+      original_url = self.__get_original_url()
+      print("*    - original url: " + original_url)
 
-    embed_url = self.__get_embed_url()
-    print("*    - embed url: " + embed_url)
+      embed_url = self.__get_embed_url()
+      print("*    - embed url: " + embed_url)
 
-    duration = self.__get_duration()
-    print("*    - duration: " + duration)
-    print("*")
+      duration = self.__get_duration()
+      print("*    - duration: " + duration)
+      print("*")
 
-    video = {}
-    video['id'] = id
-    video['title'] = title
-    video['poster'] = poster
-    video['method'] = method
-    video['original_url'] = original_url
-    video['embed_url'] = embed_url
+      print("*  Done.")
+      print("*")
 
-    return video
+      video = {}
+      video['hash'] = hash
+      video['title'] = title
+      video['poster'] = poster
+      video['method'] = method
+      video['original_url'] = original_url
+      video['embed_url'] = embed_url
+      video['duration'] = duration
+
+      self.__store(video)
+
+      return video
+
 
   def __set_provider(self, url):
+    """Attempt determining the provider based on the given URL.
+
+    Args:
+      url: The URL to scrape.
+
+    Returns:
+      A provider probe class if a matching one is found, otherwise None.
+
+    """
+
     u = urllib.parse.urlsplit(self.url)
     netloc = u.netloc
 
@@ -88,14 +175,17 @@ class Tars:
     netloc = netloc[:netloc.rfind('.')]
 
     print("*")
-    print("*  Determining Provider (fetching probe \"" + netloc + "\")")
+    print("*  Determining Provider (fetching probe \"" + netloc + "\"):")
 
     provider = factory.create(netloc, url)
     return provider
 
+
   def __sanitize_url(self, url):
+    """Sanitize URL by removing extra arguments."""
+
     print("*")
-    print("*  Sanitizing URL")
+    print("*  Sanitizing URL:")
     print("*    - was " + url)
 
     url = url[:url.rfind('?')]
@@ -103,23 +193,40 @@ class Tars:
     print("*    - now " + url)
     return url
 
-  def __get_id(self):
-    return self.provider.get_id()
+
+  def __store(self, video):
+    video['created_at'] = datetime.datetime.utcnow()
+    collection = self.mongo['collection']
+
+    if collection.find_one({ 'hash': video['hash'] }) is None:
+      self.mongo['collection'].insert(video)
+
 
   def __get_title(self):
+    """Get 'title' by invoking related method from current provider's probe."""
     return self.provider.get_title()
 
+
   def __get_poster(self):
+    """Get 'poster' by invoking related method from current provider's probe."""
     return self.provider.get_poster()
 
+
   def __get_method(self):
+    """Get 'method' by invoking related method from current provider's probe."""
     return self.provider.get_method()
 
+
   def __get_original_url(self):
+    """Get 'original_url' by invoking related method from current provider's probe."""
     return self.provider.get_original_url()
 
+
   def __get_embed_url(self):
+    """Get 'embed_url' by invoking related method from current provider's probe."""
     return self.provider.get_embed_url()
 
+
   def __get_duration(self):
+    """Get 'duration' by invoking related method from current provider's probe."""
     return self.provider.get_duration()

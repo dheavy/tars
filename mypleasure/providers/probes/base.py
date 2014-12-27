@@ -12,7 +12,6 @@ class BaseProbe:
 
   def __init__(self, url):
     self.data = {
-      'id': None,
       'title': None,
       'poster': None,
       'method': None,
@@ -25,9 +24,6 @@ class BaseProbe:
 
   def process(self):
     pass
-
-  def get_id(self):
-    return self.data['id']
 
   def get_title(self):
     return self.data['title']
@@ -46,9 +42,6 @@ class BaseProbe:
 
   def get_duration(self):
     return self.data['duration']
-
-  def __extract_id(self):
-    pass
 
   def __scrape_title(self, markup):
     pass
