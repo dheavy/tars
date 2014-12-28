@@ -23,7 +23,7 @@ def create(name, url):
   filepath = os.path.dirname(os.path.realpath(__file__)) + '/probes/' + name + '.py'
 
   # Unpack module name into a variable.
-  mod_name = os.path.splitext(os.path.split(filepath)[-1])
+  mod_name, _ = os.path.splitext(os.path.split(filepath)[-1])
 
   # Artifically load module and reference it in a variable.
   try:
