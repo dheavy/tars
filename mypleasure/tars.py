@@ -186,12 +186,17 @@ class Tars:
     """Sanitize URL by removing extra arguments."""
 
     self.__log("*")
-    self.__log("*  Sanitizing URL:")
-    self.__log("*    - was " + url)
 
-    url = url[:url.rfind('?')]
+    if '?' in url:
+      self.__log("*  Sanitizing URL:")
+      self.__log("*    - was " + url)
 
-    self.__log("*    - now " + url)
+      url = url[:url.rfind('?')]
+
+      self.__log("*    - now " + url)
+    else:
+      self.__log("*  URL (" + url + ") looks OK.")
+
     return url
 
 
