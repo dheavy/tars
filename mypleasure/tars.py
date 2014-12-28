@@ -23,11 +23,14 @@ class Tars:
 
 
   def __init__(self, debug=False):
+
+    # Set up variables.
+    # If `debug` is True, TARS will output to stdout.
     self.url = None
     self.provider = None
-    self.markups = []
     self.debug = debug
 
+    # Set up and read config for DB.
     config = ConfigParser()
     config.read('settings/settings.cfg')
     host = config.get('mongo', 'host')
@@ -35,6 +38,7 @@ class Tars:
     db = config.get('mongo', 'db')
     collection = config.get('mongo', 'collection')
 
+    # Setup MongoDB.
     self.mongo = {}
     self.mongo['client'] = MongoClient(host, port)
     self.mongo['db'] = self.mongo['client'][db]
@@ -58,21 +62,27 @@ class Tars:
       url: The URL where TARS should find the video.
 
     Returns:
-      Either dictionary containing the following attributes related to the video:
-      hash, title, poster, method, original_url, embed_url, duration.
-      Or None if the provider does not exist for this video.
+      Either a dictionary containing the following attributes related to the video:
+      `hash`, `title`, `poster`, `method`, `original_url`, `embed_url`, `duration`;
+      or None if the provider does not exist for this video.
 
     """
 
+    # Save reference in local variable for convenience.
     mongo_collection = self.mongo['collection']
 
-    url = self.__sanitize_url(url)
+    # Canonize URL (remove any extra attribute on it to avoid duplicates in DB).
+    url = self.__canonize_url(url)
 
     self.__log("*")
     self.__log("*  Creating hash:")
+
+    # Create a hash from the canonic URL, serving an UID for the video in DB.
     hash = hashlib.sha256(url.encode('utf-8')).hexdigest()
+
     self.__log("*    " + hash)
 
+    # Check for video in DB: return it if it exists, else trigger a new scrape.
     stored_video = mongo_collection.find_one({ 'hash': hash })
 
     if stored_video is not None:
@@ -107,9 +117,12 @@ class Tars:
 
     """
 
+    # From given URL, define provider.
     self.url = url
     self.provider = self.__set_provider(self.url)
 
+    # If not provider is to be found, abort.
+    # Otherwise fetch all needed data by invoking provider's method.
     if self.provider is None:
       self.__log("*    - no probe found: aborting mission.")
       self.__log("*\n")
@@ -152,6 +165,7 @@ class Tars:
       video['embed_url'] = embed_url
       video['duration'] = duration
 
+      # Store new video in DB.
       self.__store(video)
 
       return video
@@ -168,9 +182,11 @@ class Tars:
 
     """
 
+    # Parse URI and isolate the "authority" part (e.g. "http://www.example.com:80").
     u = urllib.parse.urlsplit(self.url)
     netloc = u.netloc
 
+    # Remove leading "www".
     if netloc[0:4] == 'www.':
       netloc = netloc[4:]
     netloc = netloc[:netloc.rfind('.')]
@@ -178,12 +194,13 @@ class Tars:
     self.__log("*")
     self.__log("*  Determining Provider (fetching probe \"" + netloc + "\"):")
 
+    # Invoke factory method to instantiate a provider's probe based on URL.
     provider = factory.create(netloc, url)
     return provider
 
 
-  def __sanitize_url(self, url):
-    """Sanitize URL by removing extra arguments."""
+  def __canonize_url(self, url):
+    """Canonize URL by removing extra arguments."""
 
     self.__log("*")
 
