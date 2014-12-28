@@ -22,10 +22,11 @@ class Tars:
   """
 
 
-  def __init__(self):
+  def __init__(self, debug=False):
     self.url = None
     self.provider = None
     self.markups = []
+    self.debug = debug
 
     config = ConfigParser()
     config.read('settings/settings.cfg')
@@ -39,9 +40,9 @@ class Tars:
     self.mongo['db'] = self.mongo['client'][db]
     self.mongo['collection'] = self.mongo['db'][collection]
 
-    print("\n*")
-    print("*  TARS, is ready [" + str(datetime.datetime.now()) + "]")
-    print("*  ///////////////////////////////////////////")
+    self.__log("\n*")
+    self.__log("*  TARS, is ready [" + str(datetime.datetime.now()) + "]")
+    self.__log("*  ///////////////////////////////////////////")
 
 
   def send_on_mission(self, url):
@@ -67,26 +68,26 @@ class Tars:
 
     url = self.__sanitize_url(url)
 
-    print("*")
-    print("*  Creating hash:")
+    self.__log("*")
+    self.__log("*  Creating hash:")
     hash = hashlib.sha256(url.encode('utf-8')).hexdigest()
-    print("*    " + hash)
+    self.__log("*    " + hash)
 
     stored_video = mongo_collection.find_one({ 'hash': hash })
 
     if stored_video is not None:
-      print("*")
-      print("*  Found document matching hash in database. Returning:")
-      print("*    - hash: " + hash)
-      print("*    - title: " + stored_video['title'])
-      print("*    - poster: " + stored_video['poster'])
-      print("*    - method: " + stored_video['method'])
-      print("*    - original url: " + stored_video['original_url'])
-      print("*    - embed url: " + stored_video['embed_url'])
-      print("*    - duration: " + stored_video['duration'])
-      print("*")
-      print("*  Done.")
-      print("*")
+      self.__log("*")
+      self.__log("*  Found document matching hash in database. Returning:")
+      self.__log("*    - hash: " + hash)
+      self.__log("*    - title: " + stored_video['title'])
+      self.__log("*    - poster: " + stored_video['poster'])
+      self.__log("*    - method: " + stored_video['method'])
+      self.__log("*    - original url: " + stored_video['original_url'])
+      self.__log("*    - embed url: " + stored_video['embed_url'])
+      self.__log("*    - duration: " + stored_video['duration'])
+      self.__log("*")
+      self.__log("*  Done.")
+      self.__log("*")
       return stored_video
     else:
       self.scrape(url, hash)
@@ -110,37 +111,37 @@ class Tars:
     self.provider = self.__set_provider(self.url)
 
     if self.provider is None:
-      print("*    - no probe found: aborting mission.")
-      print("*\n")
+      self.__log("*    - no probe found: aborting mission.")
+      self.__log("*\n")
       return None
     else:
-      print("*    - found matching probe: " + self.provider.name)
-      print("*")
+      self.__log("*    - found matching probe: " + self.provider.name)
+      self.__log("*")
 
-      print("*  Creating payload:")
-      print("*    - hash: " + hash)
+      self.__log("*  Creating payload:")
+      self.__log("*    - hash: " + hash)
 
       title = self.__get_title()
-      print("*    - title: " + title)
+      self.__log("*    - title: " + title)
 
       poster = self.__get_poster()
-      print("*    - poster: " + poster)
+      self.__log("*    - poster: " + poster)
 
       method = self.__get_method()
-      print("*    - method: " + method)
+      self.__log("*    - method: " + method)
 
       original_url = self.__get_original_url()
-      print("*    - original url: " + original_url)
+      self.__log("*    - original url: " + original_url)
 
       embed_url = self.__get_embed_url()
-      print("*    - embed url: " + embed_url)
+      self.__log("*    - embed url: " + embed_url)
 
       duration = self.__get_duration()
-      print("*    - duration: " + duration)
-      print("*")
+      self.__log("*    - duration: " + duration)
+      self.__log("*")
 
-      print("*  Done.")
-      print("*")
+      self.__log("*  Done.")
+      self.__log("*")
 
       video = {}
       video['hash'] = hash
@@ -174,8 +175,8 @@ class Tars:
       netloc = netloc[4:]
     netloc = netloc[:netloc.rfind('.')]
 
-    print("*")
-    print("*  Determining Provider (fetching probe \"" + netloc + "\"):")
+    self.__log("*")
+    self.__log("*  Determining Provider (fetching probe \"" + netloc + "\"):")
 
     provider = factory.create(netloc, url)
     return provider
@@ -184,13 +185,13 @@ class Tars:
   def __sanitize_url(self, url):
     """Sanitize URL by removing extra arguments."""
 
-    print("*")
-    print("*  Sanitizing URL:")
-    print("*    - was " + url)
+    self.__log("*")
+    self.__log("*  Sanitizing URL:")
+    self.__log("*    - was " + url)
 
     url = url[:url.rfind('?')]
 
-    print("*    - now " + url)
+    self.__log("*    - now " + url)
     return url
 
 
@@ -230,3 +231,8 @@ class Tars:
   def __get_duration(self):
     """Get 'duration' by invoking related method from current provider's probe."""
     return self.provider.get_duration()
+
+
+  def __log(self, msg):
+    if self.debug is True:
+      print(msg)
