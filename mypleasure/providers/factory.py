@@ -13,17 +13,26 @@ def create(name, url):
     An instance of the matching probe, if any matches, or None otherwise.
 
   """
-  class_int = None
+
+  # Initialize variable class instance we're expecting to return.
+  class_inst = None
+
+  # Capitalize the name passed as argument to (hopefully) obtain the name of the class
+  # we're expecting to instantiate, and build the file path to its file.
   expected_class = name.capitalize()
   filepath = os.path.dirname(os.path.realpath(__file__)) + '/probes/' + name + '.py'
 
-  mod_name, file_ext = os.path.splitext(os.path.split(filepath)[-1])
+  # Unpack module name into a variable.
+  mod_name = os.path.splitext(os.path.split(filepath)[-1])
 
+  # Artifically load module and reference it in a variable.
   try:
     py_mod = imp.load_source(mod_name, filepath)
   except FileNotFoundError:
     return None
 
+  # If loaded module has expected class, artifically load a class instance
+  # with expected `url` argument in it.
   if hasattr(py_mod, expected_class):
     class_inst = getattr(py_mod, expected_class)(url)
 
