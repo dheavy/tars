@@ -5,7 +5,18 @@ MyPleasu.re - Scraper CLI (Python)
 
 ---
 
-#### 1 / Purpose
+#### 1 / Installation
+
+This is a **Python 3.4** app. I've developped it on **Python 3.4.2**.
+
+Install **Python 3.4++** on your machine, then follow these steps to install.
+
+- Install [`pip`](https://pip.pypa.io/en/latest/installing.html);
+- Create a Python 3 based [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/): `pyvenv <ENV_DIR>` (`ENV_DIR` can be named anything);
+- Activate it: `source <ENV_DIR>/bin/activate`;
+- Install dependencies with `pip install -r requirements.txt`.
+
+#### 2 / Purpose
 
 **Node.js** is famously known for not being a good choice for CPU intensive tasks. The first version of **scraper** allowed us to experience it first-hand.
 
@@ -15,7 +26,7 @@ This **Python** version is an attempt at circumventing the main issues we dealt 
 - **Speed**: I have the intuition the **Python** may perform faster, and will set up execution timers for both version to find out.
 - **Code readibility**: callback hell is real, even with modularized code, named functions and other precautions. It makes sharing code quite painful.
 
-#### 2 / Settings
+#### 3 / Settings
 
 The app will look for an environment variable named `MYPLSR_ENV` to determine the current environement — either `dev` or `prod`.
 
@@ -23,7 +34,7 @@ The app will look for an environment variable named `MYPLSR_ENV` to determine th
 - Create a `settings.cfg` file in `./settings/`. **This file will not be version controlled** so it can host sensitive data.
 - Copy / inspire yourself from the content of `settings.example.cfg` to set the appropriate values for your configuration in `settings.cfg`.
 
-#### 3 / Early results
+#### 4 / Early results
 
 Keep in mind these tests are not set like real benchmarks should be done, and only exist for their comparitive value next to Node.js on the same setups.
 For the record, I'm using a **Macbook Pro Retina Late 2012, 2,5 GHz Intel Core i5, duo-core 8 Go 1600 MHz DDR3, on OS X 10.9.5 (13F34)**.
