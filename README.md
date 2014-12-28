@@ -9,7 +9,7 @@ MyPleasu.re - Scraper CLI (Python)
 
 This is a **Python 3.4** app. I've developped it on **Python 3.4.2**.
 
-Install **Python 3.4++** on your machine, then follow these steps to install.
+Install **Python 3.4.x** on your machine, then follow these steps to install.
 
 - Install [`pip`](https://pip.pypa.io/en/latest/installing.html);
 - Create a Python 3 based [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/): `pyvenv <ENV_DIR>` (`ENV_DIR` can be named anything);
@@ -46,7 +46,7 @@ As of commit `95d4e9c` (tag `0.1.0`), a _rough_ test consisting of fetching 20 d
 
 I've left the tests in the commit, so checking it out and running `/usr/bin/time ./scraper.py` from a *nix machine will let you try it out yourself.
 
-On commit `df38325` I set up multithreading, tailored for my machine's specs. The logs become a bit messy but the results are obviously even better:
+On commit `df38325` I set up multithreading, tailored for my machine's specs. The logs become a bit messy but the results are obviously even better, at least for scraping:
 
 - **0.4225**, average execution time for scraping the same data;
 - **0.0185**, average execution time for fetching cached data afterwards.
