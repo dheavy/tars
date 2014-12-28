@@ -28,6 +28,10 @@ if __name__ == '__main__':
   options = parse_args()
 
   tars = Tars(debug=True)
+  tars.send_on_mission('http://xhamster.com/movies/377175/swingers_party_on_a_yacht_in_florida.html')
+  tars.send_on_mission('http://xhamster.com/movies/3093854/short_shorts.html')
+  tars.send_on_mission('http://xhamster.com/movies/1996078/italian_beauties_full_italian_movie.html')
+  """
   tars.send_on_mission('http://www.youporn.com/watch/10166327/dorcel-airlines-paris-new-york/?from=search_full&pos=1')
   tars.send_on_mission('http://www.xvideos.com/video1162298/born_slippy_best_anal_compilation_ever_')
   tars.send_on_mission('http://www.xvideos.com/video7244861/wet_and_horny_amateur_asian_slut_rides_white_boyfriend')
@@ -35,7 +39,8 @@ if __name__ == '__main__':
   tars.send_on_mission('http://www.xvideos.com/video7255307/homemade_amateur_sextape')
   tars.send_on_mission('http://www.xvideos.com/video4238684/img_0977')
   tars.send_on_mission('http://www.xvideos.com/video5194815/lets_try_anal_')
-"""
+  """
+  """
   pool = Pool(options.workers)
   pool.map(tars.send_on_mission,
            ('http://www.youporn.com/watch/10436027/18yo-busty-buffy-fucks-for-cum-on-tits/?from=related3&al=2&from_id=10436027&pos=5',
