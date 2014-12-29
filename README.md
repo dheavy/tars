@@ -7,12 +7,12 @@ MyPleasu.re - Scraper CLI (Python)
 
 #### 1 / Installation
 
-This is a **Python 3.4** app. I've developped it on **Python 3.4.2**.
+This is a **Python 2.7** app. I've developped it on **Python 2.7.5**. It was started as a **Python 3.x.x** project but downgraded due to expected conflict with other libraries (i.e. dependencies in [Flask](flask.pocoo.org/docs/0.10/python3/#python3-support)).
 
-Install **Python 3.4.x** on your machine, then follow these steps to install.
+Install **Python 2.7.x** on your machine, then follow these steps to install.
 
 - Install [`pip`](https://pip.pypa.io/en/latest/installing.html);
-- Create a Python 3 based [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/): `pyvenv <ENV_DIR>` (`ENV_DIR` can be named anything);
+- Create a Python based [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/): `virtualenv <ENV_DIR>` (`ENV_DIR` can be named anything);
 - Activate it: `source <ENV_DIR>/bin/activate`;
 - Install dependencies with `pip install -r requirements.txt`.
 
@@ -50,3 +50,5 @@ On commit `df38325` I set up multithreading, tailored for my machine's specs. Th
 
 - **0.4225**, average execution time for scraping the same data;
 - **0.0185**, average execution time for fetching cached data afterwards.
+
+(Note that these tests were taken under the Python 3 version of the app.)
