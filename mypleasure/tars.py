@@ -1,10 +1,10 @@
-import urllib
+import urlparse
 import datetime
 import requests
 import bs4
 import datetime
 import hashlib
-from configparser import ConfigParser
+from ConfigParser import ConfigParser
 from pymongo import MongoClient
 from mypleasure.providers import factory
 
@@ -183,7 +183,7 @@ class Tars:
     """
 
     # Parse URI and isolate the "authority" part (e.g. "http://www.example.com:80").
-    u = urllib.parse.urlsplit(self.url)
+    u = urlparse.urlsplit(self.url)
     netloc = u.netloc
 
     # Remove leading "www".

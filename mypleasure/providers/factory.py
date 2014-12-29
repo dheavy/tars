@@ -1,13 +1,14 @@
 import imp
 import os
+import errno
 
 
 def create(name, url):
   """Create a new instance of a probe matching the given name.
 
   Args:
-    name: The name of the website — should be matching with the name of a probe.
-    url: The URL to scrape — will be injected to the probe instance upon creation.
+    name: The name of the website - should be matching with the name of a probe.
+    url: The URL to scrape - will be injected to the probe instance upon creation.
 
   Returns:
     An instance of the matching probe, if any matches, or None otherwise.
@@ -28,7 +29,7 @@ def create(name, url):
   # Artifically load module and reference it in a variable.
   try:
     py_mod = imp.load_source(mod_name, filepath)
-  except FileNotFoundError:
+  except EnvironmentError as e:
     return None
 
   # If loaded module has expected class, artifically load a class instance

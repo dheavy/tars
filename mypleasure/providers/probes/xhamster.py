@@ -45,7 +45,7 @@ class Xhamster(BaseProbe):
     # -------------------------------
     # Xhamster neglects formating hours. So if a movie lasts more than an hour,
     # it will still be displayed as `mm:ss`, or even `mmm:ss` if needed
-    # — e.g. a movie lasting 01:10:20 will be displayed as 70:20 on Xhamster.
+    # - e.g. a movie lasting 01:10:20 will be displayed as 70:20 on Xhamster.
 
     first_digits = int(duration[:2])
     last_digits = str(duration[-2:])

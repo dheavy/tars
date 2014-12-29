@@ -3,7 +3,7 @@
 import os
 import argparse
 from mypleasure.tars import Tars
-from configparser import ConfigParser
+from ConfigParser import ConfigParser
 from multiprocessing.pool import ThreadPool as Pool
 
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
   tars.send_on_mission('http://xhamster.com/movies/377175/swingers_party_on_a_yacht_in_florida.html')
   tars.send_on_mission('http://xhamster.com/movies/3093854/short_shorts.html')
   tars.send_on_mission('http://xhamster.com/movies/1996078/italian_beauties_full_italian_movie.html')
-  """
+
   tars.send_on_mission('http://www.youporn.com/watch/10166327/dorcel-airlines-paris-new-york/?from=search_full&pos=1')
   tars.send_on_mission('http://www.xvideos.com/video1162298/born_slippy_best_anal_compilation_ever_')
   tars.send_on_mission('http://www.xvideos.com/video7244861/wet_and_horny_amateur_asian_slut_rides_white_boyfriend')
@@ -39,8 +39,8 @@ if __name__ == '__main__':
   tars.send_on_mission('http://www.xvideos.com/video7255307/homemade_amateur_sextape')
   tars.send_on_mission('http://www.xvideos.com/video4238684/img_0977')
   tars.send_on_mission('http://www.xvideos.com/video5194815/lets_try_anal_')
-  """
-  """
+
+
   pool = Pool(options.workers)
   pool.map(tars.send_on_mission,
            ('http://www.youporn.com/watch/10436027/18yo-busty-buffy-fucks-for-cum-on-tits/?from=related3&al=2&from_id=10436027&pos=5',
@@ -61,4 +61,4 @@ if __name__ == '__main__':
             'http://www.youporn.com/watch/10684159/lesbian-sex-shower/',
             'http://www.youporn.com/watch/10221345/sperm-swap-three-way-with-two-hot-babes-and-sperm-swap/',
             'http://www.youporn.com/watch/10720537/femaleagent-sexy-agents-asshole-licked-and-her-perfect-pussy-fucked-in-doggy/',
-            'http://www.youporn.com/watch/10338569/latina-pornstar-mari-possa-with-huge-natural-dd-boobs-masturbates/'))"""
+            'http://www.youporn.com/watch/10338569/latina-pornstar-mari-possa-with-huge-natural-dd-boobs-masturbates/'))
