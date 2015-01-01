@@ -43,6 +43,9 @@ class Youporn(BaseProbe):
     duration = markup.select('.videoList .duration')[0].string
 
     # Format hours display (two digits)
+    if len(duration) < 6:
+      duration = '00:' + duration
+
     if len(duration) < 8:
       duration = '0' + duration
 
