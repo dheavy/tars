@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import urlparse
 import datetime
 import requests
@@ -28,6 +30,7 @@ class Tars:
     # If `debug` is True, TARS will output to stdout.
     self.url = None
     self.provider = None
+    self.requester = None
     self.debug = debug
 
     # Set up and read config for DB.
@@ -37,19 +40,17 @@ class Tars:
     port = config.getint('mongo', 'port')
     db = config.get('mongo', 'db')
     collection = config.get('mongo', 'collection')
+    queue = config.get('mongo', 'queue')
 
     # Setup MongoDB.
     self.mongo = {}
     self.mongo['client'] = MongoClient(host, port)
     self.mongo['db'] = self.mongo['client'][db]
     self.mongo['collection'] = self.mongo['db'][collection]
-
-    self.__log("\n*")
-    self.__log("*  TARS, is ready [" + str(datetime.datetime.now()) + "]")
-    self.__log("*  ///////////////////////////////////////////")
+    self.mongo['queue'] = self.mongo['db'][queue]
 
 
-  def send_on_mission(self, url):
+  def send_on_mission(self, args):
     """Send TARS on a mission to fetch data from video found on the URL passed as argument.
 
     TARS will retrieve an object representing a video scraped and stored in database.
@@ -59,7 +60,7 @@ class Tars:
     proceed with scraping and creating a new entry.
 
     Args:
-      url: The URL where TARS should find the video.
+      args: In order - the URL where TARS should find the video, and the requester (user's id).
 
     Returns:
       Either a dictionary containing the following attributes related to the video:
@@ -67,38 +68,24 @@ class Tars:
       or None if the provider does not exist for this video.
 
     """
+    #print(args)
+
+    # Store URL, hash and requester's id.
+    url = args['url']
+    self.requester = args['requester']
+    hash = args['hash']
 
     # Save reference in local variable for convenience.
-    mongo_collection = self.mongo['collection']
+    videostore = self.mongo['collection']
 
     # Canonize URL (remove any extra attribute on it to avoid duplicates in DB).
     url = self.__canonize_url(url)
 
-    self.__log("*")
-    self.__log("*  Creating hash:")
-
-    # Create a hash from the canonic URL, serving an UID for the video in DB.
-    hash = hashlib.sha256(url.encode('utf-8')).hexdigest()
-
-    self.__log("*    " + hash)
-
-    # Check for video in DB: return it if it exists, else trigger a new scrape.
-    stored_video = mongo_collection.find_one({ 'hash': hash })
+    # Check for video in DB: mark task as done in queue if it exists, else trigger a new scrape.
+    stored_video = videostore.find_one({ 'hash': hash })
 
     if stored_video is not None:
-      self.__log("*")
-      self.__log("*  Found document matching hash in database. Returning:")
-      self.__log("*    - hash: " + hash)
-      self.__log("*    - title: " + stored_video['title'])
-      self.__log("*    - poster: " + stored_video['poster'])
-      self.__log("*    - method: " + stored_video['method'])
-      self.__log("*    - original url: " + stored_video['original_url'])
-      self.__log("*    - embed url: " + stored_video['embed_url'])
-      self.__log("*    - duration: " + stored_video['duration'])
-      self.__log("*")
-      self.__log("*  Done.")
-      self.__log("*")
-      return stored_video
+      self.__update_queue(self.requester, stored_video, 'ready')
     else:
       self.scrape(url, hash)
 
@@ -108,7 +95,7 @@ class Tars:
 
     Args:
       url: A sanitized URL to scrape.
-      hash: A SHA256 hash based on the sanitize URL - serves as index for the document.
+      hash: A md5 hash based on the sanitize URL - serves as index for the document.
 
     Returns:
       Either dictionary containing the following attributes related to the video:
@@ -121,40 +108,15 @@ class Tars:
     self.url = url
     self.provider = self.__set_provider(self.url)
 
-    # If not provider is to be found, abort.
+    # If not provider is to be found, change status to notfound and stop.
     # Otherwise fetch all needed data by invoking provider's method.
-    if self.provider is None:
-      self.__log("*    - no probe found: aborting mission.")
-      self.__log("*\n")
-      return None
-    else:
-      self.__log("*    - found matching probe: " + self.provider.name)
-      self.__log("*")
-
-      self.__log("*  Creating payload:")
-      self.__log("*    - hash: " + hash)
-
+    if self.provider is not None:
       title = self.__get_title()
-      self.__log("*    - title: " + title)
-
       poster = self.__get_poster()
-      self.__log("*    - poster: " + poster)
-
       method = self.__get_method()
-      self.__log("*    - method: " + method)
-
       original_url = self.__get_original_url()
-      self.__log("*    - original url: " + original_url)
-
       embed_url = self.__get_embed_url()
-      self.__log("*    - embed url: " + embed_url)
-
       duration = self.__get_duration()
-      self.__log("*    - duration: " + duration)
-      self.__log("*")
-
-      self.__log("*  Done.")
-      self.__log("*")
 
       video = {}
       video['hash'] = hash
@@ -167,8 +129,8 @@ class Tars:
 
       # Store new video in DB.
       self.__store(video)
-
-      return video
+    else:
+      self.__update_queue(self.requester, video, 'notfound')
 
 
   def __set_provider(self, url):
@@ -191,9 +153,6 @@ class Tars:
       netloc = netloc[4:]
     netloc = netloc[:netloc.rfind('.')]
 
-    self.__log("*")
-    self.__log("*  Determining Provider (fetching probe \"" + netloc + "\"):")
-
     # Invoke factory method to instantiate a provider's probe based on URL.
     provider = factory.create(netloc, url)
     return provider
@@ -202,17 +161,8 @@ class Tars:
   def __canonize_url(self, url):
     """Canonize URL by removing extra arguments."""
 
-    self.__log("*")
-
     if '?' in url:
-      self.__log("*  Sanitizing URL:")
-      self.__log("*    - was " + url)
-
       url = url[:url.rfind('?')]
-
-      self.__log("*    - now " + url)
-    else:
-      self.__log("*  URL (" + url + ") looks OK.")
 
     return url
 
@@ -223,6 +173,16 @@ class Tars:
 
     if collection.find_one({ 'hash': video['hash'] }) is None:
       self.mongo['collection'].insert(video)
+
+    self.__update_queue(self.requester, video, 'ready')
+
+
+  def __update_queue(self, requester, video, status):
+    queue = self.mongo['queue']
+    queue.update(
+      { 'hash': video['hash'], 'requester': long(requester) },
+      { '$set': { 'status': status, 'updated_at': datetime.datetime.utcnow() } }
+    )
 
 
   def __get_title(self):
@@ -253,8 +213,3 @@ class Tars:
   def __get_duration(self):
     """Get 'duration' by invoking related method from current provider's probe."""
     return self.provider.get_duration()
-
-
-  def __log(self, msg):
-    if self.debug is True:
-      print(msg)
