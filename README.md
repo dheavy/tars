@@ -1,5 +1,5 @@
-MyPleasu.re - Scraper CLI (Python)
-=================================
+mypleasure "TARS" — scraper CLI
+================================
 
 ### A Python based command line interface application, replacing Node.js, that crawls and scrapes content from websites ("providers").
 
