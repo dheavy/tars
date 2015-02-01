@@ -15,6 +15,7 @@ Install **Python 2.7.x** on your machine, then follow these steps to install.
 - Create a Python based [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/): `virtualenv <ENV_DIR>` (`ENV_DIR` can be named anything);
 - Activate it: `source <ENV_DIR>/bin/activate`;
 - Install dependencies with `pip install -r requirements.txt`.
+- Edit the cron task responsible for automating the scraper (`./cron/mypleasure-scraper-cron.txt`): change the path of the task to match the set up in place.
 
 #### 2 / Purpose
 

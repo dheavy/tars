@@ -1,1 +1,0 @@
-# Fetch content from queue, and send TARS to scrape content.
