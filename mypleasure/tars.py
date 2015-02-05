@@ -50,7 +50,7 @@ class Tars:
     self.mongo['queue'] = self.mongo['db'][queue]
 
 
-  def send_on_mission(self, args):
+  def send_on_mission(self, args, forceUrl=None):
     """Send TARS on a mission to fetch data from video found on the URL passed as argument.
 
     TARS will retrieve an object representing a video scraped and stored in database.
@@ -71,26 +71,28 @@ class Tars:
     #print(args)
 
     # Store URL, hash and requester's id.
-    url = args['url']
-    self.requester = args['requester']
-    hash = args['hash']
+    if forceUrl is None:
+      url = args['url']
+      self.requester = args['requester']
+      hash = args['hash']
+      # Save reference in local variable for convenience.
+      videostore = self.mongo['collection']
 
-    # Save reference in local variable for convenience.
-    videostore = self.mongo['collection']
+      # Canonize URL (remove any extra attribute on it to avoid duplicates in DB).
+      url = self.__canonize_url(url)
 
-    # Canonize URL (remove any extra attribute on it to avoid duplicates in DB).
-    url = self.__canonize_url(url)
+      # Check for video in DB: mark task as done in queue if it exists, else trigger a new scrape.
+      stored_video = videostore.find_one({ 'hash': hash })
 
-    # Check for video in DB: mark task as done in queue if it exists, else trigger a new scrape.
-    stored_video = videostore.find_one({ 'hash': hash })
-
-    if stored_video is not None:
-      self.__update_queue(self.requester, stored_video, 'ready')
+      if stored_video is not None:
+        self.__update_queue(self.requester, stored_video, 'ready')
+      else:
+        self.scrape(url, hash)
     else:
-      self.scrape(url, hash)
+      url = forceUrl
+      self.scrape(url, None)
 
-
-  def scrape(self, url, hash):
+  def scrape(self, url, hash=None):
     """Scrape the URL and create a new entry indexed with the hash passed as argument.
 
     Args:
@@ -119,7 +121,8 @@ class Tars:
       duration = self.__get_duration()
 
       video = {}
-      video['hash'] = hash
+      if hash:
+        video['hash'] = hash
       video['title'] = title
       video['poster'] = poster
       video['method'] = method
@@ -127,10 +130,17 @@ class Tars:
       video['embed_url'] = embed_url
       video['duration'] = duration
 
-      # Store new video in DB.
-      self.__store(video)
+      # Store new video in DB, or print dict if a single URL
+      # was passed in command line (i.e. we're trying out providers).
+      if hash:
+        self.__store(video)
+      else:
+        print(video)
     else:
-      self.__update_queue(self.requester, video, 'notfound')
+      if hash:
+        self.__update_queue(self.requester, video, 'notfound')
+      else:
+        print('Provider not found')
 
 
   def __set_provider(self, url):
