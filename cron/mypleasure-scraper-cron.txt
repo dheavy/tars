@@ -1,5 +1,0 @@
-#!/bin/bash
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-# Fetch content from queue, and send TARS to scrape content.
-* * * * * /home/vagrant/Code/Apps/mypleasu.re/tars/scraper
