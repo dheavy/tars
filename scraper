@@ -60,7 +60,7 @@ if __name__ == '__main__':
   options = parse_args()
   #pool = Pool(options.workers)
   pool = Pool(4)
-  tars = Tars(debug=True)
+  tars = Tars()
 
   # Set up and read config for MongoDB.
   config = ConfigParser()

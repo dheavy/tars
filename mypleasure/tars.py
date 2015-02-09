@@ -68,7 +68,6 @@ class Tars:
       or None if the provider does not exist for this video.
 
     """
-    #print(args)
 
     # Store URL, hash and requester's id.
     if forceUrl is None:
@@ -171,8 +170,9 @@ class Tars:
   def __canonize_url(self, url):
     """Canonize URL by removing extra arguments."""
 
-    if '?' in url:
-      url = url[:url.rfind('?')]
+    # TODO: fix me. Find a better way to sanitize.
+    """if '?' in url:
+      url = url[:url.rfind('?')]"""
 
     return url
 
