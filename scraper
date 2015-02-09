@@ -16,12 +16,16 @@ def parse_args():
   Returns:
     The tuple of arguments (url, id, requester) passed in CLI.
   """
-  config = ConfigParser()
-  config.read('settings/settings.cfg')
+  if os.environ['LARAVEL_ENV'] && os.environ['LARAVEL_ENV'] == 'local':
+    config = ConfigParser()
+    config.read('settings/settings.cfg')
+    workers = config.get('app', 'workers')
+  else:
+    workers = os.environ('TARS_WORKERS')
 
   parser = argparse.ArgumentParser(description='Crawls and scrapes content from websites ("providers").')
   parser.add_argument('--url', type=str, help='url to scrape')
-  parser.add_argument('--workers', type=int, default=config.get('app', 'workers'), help='number of workers to use, ' + config.get('app', 'workers') + ' by default - ideal number is twice the number of CPUs available on the machine')
+  parser.add_argument('--workers', type=int, default=workers, help='number of workers to use, ' + workers + ' by default - ideal number is twice the number of CPUs available on the machine')
 
   return parser.parse_args()
 
@@ -65,12 +69,18 @@ if __name__ == '__main__':
   print('scraper running...')
 
   # Set up and read config for MongoDB.
-  config = ConfigParser()
-  config.read('settings/settings.cfg')
-  host = config.get('mongo', 'host')
-  port = config.getint('mongo', 'port')
-  dbname = config.get('mongo', 'db')
-  queue_collection = config.get('mongo', 'queue')
+  if os.environ['LARAVEL_ENV'] && os.environ['LARAVEL_ENV'] == 'local':
+    config = ConfigParser()
+    config.read('settings/settings.cfg')
+    dbname = config.get('mongo', 'db')
+    host = config.get('mongo', 'host')
+    port = config.getint('mongo', 'port')
+    queue_collection = config.get('mongo', 'queue')
+  elif:
+    host = os.environ('MONGODB_HOST')
+    port = os.environ('MONGODB_PORT')
+    dbname = os.environ('MONGODB_DATABASE')
+    queue_collection = 'queue'
 
   # Access MongoDB.
   client = MongoClient(host, port)

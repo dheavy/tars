@@ -34,13 +34,20 @@ class Tars:
     self.debug = debug
 
     # Set up and read config for DB.
-    config = ConfigParser()
-    config.read('settings/settings.cfg')
-    host = config.get('mongo', 'host')
-    port = config.getint('mongo', 'port')
-    db = config.get('mongo', 'db')
-    collection = config.get('mongo', 'collection')
-    queue = config.get('mongo', 'queue')
+    if os.environ['LARAVEL_ENV'] && os.environ['LARAVEL_ENV'] == 'local':
+      config = ConfigParser()
+      config.read('settings/settings.cfg')
+      db = config.get('mongo', 'db')
+      host = config.get('mongo', 'host')
+      port = config.getint('mongo', 'port')
+      collection = config.get('mongo', 'collection')
+      queue = config.get('mongo', 'queue')
+    elif:
+      host = os.environ('MONGODB_HOST')
+      port = os.environ('MONGODB_PORT')
+      db = os.environ('MONGODB_DATABASE')
+      collection = 'videos'
+      queue = 'queue'
 
     # Setup MongoDB.
     self.mongo = {}
