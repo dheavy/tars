@@ -1,1 +1,1 @@
-web: python mypleasure-scheduler
+worker: python mypleasure-scheduler
