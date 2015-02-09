@@ -1,4 +1,5 @@
 beautifulsoup4==4.3.2
+lxml==3.4.1
 pymongo==2.7.2
 requests==2.3.0
 tendo==0.2.7
