@@ -16,7 +16,7 @@ def parse_args():
   Returns:
     The tuple of arguments (url, id, requester) passed in CLI.
   """
-  if os.environ['LARAVEL_ENV'] && os.environ['LARAVEL_ENV'] == 'local':
+  if os.environ['LARAVEL_ENV'] and os.environ['LARAVEL_ENV'] == 'local':
     config = ConfigParser()
     config.read('settings/settings.cfg')
     workers = config.get('app', 'workers')
@@ -69,7 +69,7 @@ if __name__ == '__main__':
   print('scraper running...')
 
   # Set up and read config for MongoDB.
-  if os.environ['LARAVEL_ENV'] && os.environ['LARAVEL_ENV'] == 'local':
+  if os.environ['LARAVEL_ENV'] and os.environ['LARAVEL_ENV'] == 'local':
     config = ConfigParser()
     config.read('settings/settings.cfg')
     dbname = config.get('mongo', 'db')

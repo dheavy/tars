@@ -34,7 +34,7 @@ class Tars:
     self.debug = debug
 
     # Set up and read config for DB.
-    if os.environ['LARAVEL_ENV'] && os.environ['LARAVEL_ENV'] == 'local':
+    if os.environ['LARAVEL_ENV'] and os.environ['LARAVEL_ENV'] == 'local':
       config = ConfigParser()
       config.read('settings/settings.cfg')
       db = config.get('mongo', 'db')
