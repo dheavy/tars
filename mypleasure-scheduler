@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import sched, time
+from subprocess import call
+
+def scrape():
+  call(['./scraper', '--workers=2'])
+  s.enter(3, 1, scrape, ())
+
+s = sched.scheduler(time.time, time.sleep)
+s.enter(3, 1, scrape, ())
+s.run()

@@ -21,7 +21,7 @@ def parse_args():
 
   parser = argparse.ArgumentParser(description='Crawls and scrapes content from websites ("providers").')
   parser.add_argument('--url', type=str, help='url to scrape')
-  #parser.add_argument('--workers', type=int, default=config.get('app', 'workers'), help='number of workers to use, ' + config.get('app', 'workers') + ' by default - ideal number is twice the number of CPUs available on the machine')
+  parser.add_argument('--workers', type=int, default=config.get('app', 'workers'), help='number of workers to use, ' + config.get('app', 'workers') + ' by default - ideal number is twice the number of CPUs available on the machine')
 
   return parser.parse_args()
 
@@ -58,9 +58,11 @@ if __name__ == '__main__':
   # to create a pool of Tars' missions.
   me = singleton.SingleInstance()
   options = parse_args()
-  #pool = Pool(options.workers)
-  pool = Pool(4)
+  pool = Pool(options.workers)
+  #pool = Pool(4)
   tars = Tars()
+
+  print('scraper running...')
 
   # Set up and read config for MongoDB.
   config = ConfigParser()
