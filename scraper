@@ -21,7 +21,7 @@ def parse_args():
     config.read('settings/settings.cfg')
     workers = config.get('app', 'workers')
   else:
-    workers = os.environ('TARS_WORKERS')
+    workers = os.environ['TARS_WORKERS']
 
   parser = argparse.ArgumentParser(description='Crawls and scrapes content from websites ("providers").')
   parser.add_argument('--url', type=str, help='url to scrape')
