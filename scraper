@@ -73,34 +73,34 @@ if __name__ == '__main__':
 
   # Set up and read config for MongoDB.
   mongo_url = os.environ.get('MONGOHQ_URL')
+
+  mongo_url = os.environ.get('MONGOHQ_URL')
+
   if mongo_url:
     client = MongoClient(mongo_url)
-    db = client['mypleasure-videostore']
-    queue_collection = 'queue'
   else:
     config = ConfigParser()
     config.read('settings/settings.cfg')
-    dbname = config.get('mongo', 'db')
-    host = config.get('mongo', 'host')
-    port = config.getint('mongo', 'port')
-    queue_collection = config.get('mongo', 'queue')
+    client = MongoClient('mongodb://localhost:27017/')
 
+  db = client['mypleasure-videostore']
+  collection = db.queue
   processables = []
 
   # Prepare a list of what we'll process.
-  pending = queue_collection.find({ 'status': 'pending' })
-  if len(pending) > 0:
-    for queued in pending:
-      processables.append(queued)
+  pending = collection.find({ 'status': 'pending' })
 
-    # Ensure there are no duplicates.
-    processables = [dict(tupleized) for tupleized in tuple(item.items() for item in processables)]
+  for queued in pending:
+    processables.append(queued)
 
-    # Create the tuples of arguments for our pool.
-    args = [{ 'url': elm['url'], 'requester': elm['requester'], 'hash': elm['hash'] } for elm in processables]
+  # Ensure there are no duplicates.
+  processables = [dict(tupleized) for tupleized in tuple(item.items() for item in processables)]
 
-    # Godspeed.
-    if options.url:
-      tars.send_on_mission(args=None, forceUrl=options.url)
-    else:
-      pool.map(tars.send_on_mission, args)
+  # Create the tuples of arguments for our pool.
+  args = [{ 'url': elm['url'], 'requester': elm['requester'], 'hash': elm['hash'] } for elm in processables]
+
+  # Godspeed.
+  if options.url:
+    tars.send_on_mission(args=None, forceUrl=options.url)
+  else:
+    pool.map(tars.send_on_mission, args)

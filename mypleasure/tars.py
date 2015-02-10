@@ -40,19 +40,18 @@ class Tars:
     mongo_url = os.environ.get('MONGOHQ_URL')
 
     self.mongo = {}
+
     if mongo_url:
       self.mongo['client'] = MongoClient(mongo_url)
-      self.mongo['db'] = 'mypleasure-videostore'
-      self.mongo['collection'] = 'videos'
-      self.mongo['queue'] = ''
     else:
       config = ConfigParser()
       config.read('settings/settings.cfg')
-      db = config.get('mongo', 'db')
-      host = config.get('mongo', 'host')
-      port = config.getint('mongo', 'port')
-      collection = config.get('mongo', 'collection')
-      queue = config.get('mongo', 'queue')
+      self.mongo['client'] = MongoClient('mongodb://localhost:27017/')
+
+    self.mongo['collection'] = 'videos'
+    self.mongo['queue'] = 'queue'
+    self.mongo['db'] = self.mongo['client']['mypleasure-videostore']
+
 
   def send_on_mission(self, args, forceUrl=None):
     """Send TARS on a mission to fetch data from video found on the URL passed as argument.
