@@ -6,8 +6,8 @@ from subprocess import call
 def scrape():
   print('Launching scraper - ' + str(datetime.datetime.now().time()))
   call(['./scraper', '--workers=2'])
-  s.enter(20, 1, scrape, ())
+  s.enter(5, 1, scrape, ())
 
 s = sched.scheduler(time.time, time.sleep)
-s.enter(20, 1, scrape, ())
+s.enter(5, 1, scrape, ())
 s.run()
