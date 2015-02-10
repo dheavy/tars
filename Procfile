@@ -1,2 +1,2 @@
 web: python -m SimpleHTTPServer $PORT
-worker: python mypleasure-scheduler
+worker: python ./mypleasure-scheduler
