@@ -4,6 +4,7 @@ import sched, time
 from subprocess import call
 
 def scrape():
+  print('Launching scraper - ' + datetime.datetime.now().time())
   call(['./scraper', '--workers=2'])
   s.enter(20, 1, scrape, ())
 
