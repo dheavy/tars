@@ -83,7 +83,7 @@ if __name__ == '__main__':
     queue_collection = 'queue'
 
   # Access MongoDB.
-  client = MongoClient(host, port)
+  client = MongoClient([host + ':' + str(port), replicaset='set-54d9d749fcfb14251500053f')
   db = client[dbname]
   collection = db.queue
   processables = []
