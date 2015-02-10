@@ -44,9 +44,9 @@ class Tars:
       collection = config.get('mongo', 'collection')
       queue = config.get('mongo', 'queue')
     else:
-      host = os.environ('MONGODB_HOST')
-      port = os.environ('MONGODB_PORT')
-      db = os.environ('MONGODB_DATABASE')
+      host = os.environ['MONGODB_HOST']
+      port = os.environ['MONGODB_PORT']
+      db = os.environ['MONGODB_DATABASE']
       collection = 'videos'
       queue = 'queue'
 
