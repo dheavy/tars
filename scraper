@@ -88,17 +88,19 @@ if __name__ == '__main__':
   processables = []
 
   # Prepare a list of what we'll process.
-  for queued in queue_collection.find({ 'status': 'pending' }):
-    processables.append(queued)
+  pending = queue_collection.find({ 'status': 'pending' })
+  if len(pending) > 0:
+    for queued in pending:
+      processables.append(queued)
 
-  # Ensure there are no duplicates.
-  processables = [dict(tupleized) for tupleized in tuple(item.items() for item in processables)]
+    # Ensure there are no duplicates.
+    processables = [dict(tupleized) for tupleized in tuple(item.items() for item in processables)]
 
-  # Create the tuples of arguments for our pool.
-  args = [{ 'url': elm['url'], 'requester': elm['requester'], 'hash': elm['hash'] } for elm in processables]
+    # Create the tuples of arguments for our pool.
+    args = [{ 'url': elm['url'], 'requester': elm['requester'], 'hash': elm['hash'] } for elm in processables]
 
-  # Godspeed.
-  if options.url:
-    tars.send_on_mission(args=None, forceUrl=options.url)
-  else:
-    pool.map(tars.send_on_mission, args)
+    # Godspeed.
+    if options.url:
+      tars.send_on_mission(args=None, forceUrl=options.url)
+    else:
+      pool.map(tars.send_on_mission, args)
