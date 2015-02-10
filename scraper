@@ -6,7 +6,7 @@ import argparse
 from tendo import singleton
 from mypleasure.tars import Tars
 from ConfigParser import ConfigParser
-from pymongo import MongoClient
+from pymongo import MongoClient, Connection
 from multiprocessing.pool import ThreadPool as Pool
 
 
@@ -73,7 +73,7 @@ if __name__ == '__main__':
   # Set up and read config for MongoDB.
   mongo_url = os.environ.get('MONGOHQ_URL')
   if mongo_url:
-    conn = pymongo.Connection(mongo_url)
+    conn = Connection(mongo_url)
     client = conn[urlparse(mongo_url).path[1:]]
     db = client['mypleasure-videostore']
     queue_collection = 'queue'
