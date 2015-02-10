@@ -47,6 +47,7 @@ class Tars:
       host = os.environ['MONGODB_HOST']
       port = int(os.environ['MONGODB_PORT'])
       db = os.environ['MONGODB_DATABASE']
+      port = os.environ['MONGODB_PORT']
       collection = 'videos'
       queue = 'queue'
 
