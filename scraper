@@ -16,7 +16,9 @@ def parse_args():
   Returns:
     The tuple of arguments (url, id, requester) passed in CLI.
   """
-  if os.environ['LARAVEL_ENV'] and os.environ['LARAVEL_ENV'] == 'local':
+  mongo_url = os.environ.get('MONGOHQ_URL')
+
+  if not mongo_url:
     config = ConfigParser()
     config.read('settings/settings.cfg')
     workers = config.get('app', 'workers')
@@ -69,30 +71,24 @@ if __name__ == '__main__':
   print('scraper running...')
 
   # Set up and read config for MongoDB.
-  if os.environ['LARAVEL_ENV'] and os.environ['LARAVEL_ENV'] == 'local':
+  mongo_url = os.environ.get('MONGOHQ_URL')
+  if mongo_url:
+    conn = pymongo.Connection(mongo_url)
+    client = conn[urlparse(mongo_url).path[1:]]
+    db = client['mypleasure-videostore']
+    queue_collection = 'queue'
+  else:
     config = ConfigParser()
     config.read('settings/settings.cfg')
     dbname = config.get('mongo', 'db')
     host = config.get('mongo', 'host')
     port = config.getint('mongo', 'port')
     queue_collection = config.get('mongo', 'queue')
-  else:
-    MONGO_URL = os.environ.get('MONGOHQ_URL')
-    host = os.environ['MONGODB_HOST']
-    port = int(os.environ['MONGODB_PORT'])
-    dbname = os.environ['MONGODB_DATABASE']
-    port = os.environ['MONGODB_PORT']
-    queue_collection = 'queue'
 
-  # Access MongoDB.
-  host = host + ':' + str(port)
-  client = MongoClient(MONGO_URL)
-  db = client[dbname]
-  collection = db.queue
   processables = []
 
   # Prepare a list of what we'll process.
-  for queued in collection.find({ 'status': 'pending' }):
+  for queued in queue_collection.find({ 'status': 'pending' }):
     processables.append(queued)
 
   # Ensure there are no duplicates.

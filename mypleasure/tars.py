@@ -34,8 +34,18 @@ class Tars:
     self.requester = None
     self.debug = debug
 
-    # Set up and read config for DB.
-    if os.environ['LARAVEL_ENV'] and os.environ['LARAVEL_ENV'] == 'local':
+
+    # Setup MongoDB.
+    mongo_url = os.environ.get('MONGOHQ_URL')
+
+    self.mongo = {}
+    if mongo_url:
+      conn = pymongo.Connection(mongo_url)
+      self.mongo['client'] = conn[urlparse(mongo_url).path[1:]]
+      self.mongo['db'] = 'mypleasure-videostore'
+      self.mongo['collection'] = 'videos'
+      self.mongo['queue'] = ''
+    else:
       config = ConfigParser()
       config.read('settings/settings.cfg')
       db = config.get('mongo', 'db')
@@ -43,23 +53,6 @@ class Tars:
       port = config.getint('mongo', 'port')
       collection = config.get('mongo', 'collection')
       queue = config.get('mongo', 'queue')
-    else:
-      MONGO_URL = os.environ.get('MONGOHQ_URL')
-      host = os.environ['MONGODB_HOST']
-      port = int(os.environ['MONGODB_PORT'])
-      db = os.environ['MONGODB_DATABASE']
-      port = os.environ['MONGODB_PORT']
-      collection = 'videos'
-      queue = 'queue'
-
-    # Setup MongoDB.
-    self.mongo = {}
-    host = host + ':' + str(port)
-    self.mongo['client'] =  MongoClient(MONGO_URL)
-    self.mongo['db'] = self.mongo['client'][db]
-    self.mongo['collection'] = self.mongo['db'][collection]
-    self.mongo['queue'] = self.mongo['db'][queue]
-
 
   def send_on_mission(self, args, forceUrl=None):
     """Send TARS on a mission to fetch data from video found on the URL passed as argument.
