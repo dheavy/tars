@@ -8,6 +8,7 @@ import bs4
 import datetime
 import hashlib
 from ConfigParser import ConfigParser
+import pymongo
 from pymongo import MongoClient
 from mypleasure.providers import factory
 
@@ -40,7 +41,7 @@ class Tars:
 
     self.mongo = {}
     if mongo_url:
-      conn = Connection(mongo_url)
+      conn = pymongo.Connection(mongo_url)
       self.mongo['client'] = conn[urlparse(mongo_url).path[1:]]
       self.mongo['db'] = 'mypleasure-videostore'
       self.mongo['collection'] = 'videos'
