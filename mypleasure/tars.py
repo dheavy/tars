@@ -48,9 +48,9 @@ class Tars:
       config.read('settings/settings.cfg')
       self.mongo['client'] = MongoClient('mongodb://localhost:27017/')
 
-    self.mongo['collection'] = 'videos'
-    self.mongo['queue'] = 'queue'
     self.mongo['db'] = self.mongo['client']['mypleasure-videostore']
+    self.mongo['store'] = self.mongo['db'].videos
+    self.mongo['queue'] = self.mongo['db'].queue
 
 
   def send_on_mission(self, args, forceUrl=None):
@@ -78,7 +78,7 @@ class Tars:
       self.requester = args['requester']
       hash = args['hash']
       # Save reference in local variable for convenience.
-      videostore = self.mongo['collection']
+      videostore = self.mongo['store']
 
       # Canonize URL (remove any extra attribute on it to avoid duplicates in DB).
       url = self.__canonize_url(url)
@@ -182,10 +182,10 @@ class Tars:
 
   def __store(self, video):
     video['created_at'] = datetime.datetime.utcnow()
-    collection = self.mongo['collection']
+    collection = self.mongo['store']
 
     if collection.find_one({ 'hash': video['hash'] }) is None:
-      self.mongo['collection'].insert(video)
+      self.mongo['store'].insert(video)
 
     self.__update_queue(self.requester, video, 'ready')
 
