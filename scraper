@@ -6,7 +6,7 @@ import argparse
 from tendo import singleton
 from mypleasure.tars import Tars
 from ConfigParser import ConfigParser
-from pymongo import MongoReplicaSetClient
+from pymongo import MongoClient
 from multiprocessing.pool import ThreadPool as Pool
 
 
@@ -77,6 +77,7 @@ if __name__ == '__main__':
     port = config.getint('mongo', 'port')
     queue_collection = config.get('mongo', 'queue')
   else:
+    MONGO_URL = os.environ.get('MONGOHQ_URL')
     host = os.environ['MONGODB_HOST']
     port = int(os.environ['MONGODB_PORT'])
     dbname = os.environ['MONGODB_DATABASE']
@@ -85,7 +86,7 @@ if __name__ == '__main__':
 
   # Access MongoDB.
   host = host + ':' + str(port)
-  client = MongoReplicaSetClient(host, replicaset='set-54d9d749fcfb14251500053f')
+  client = MongoClient(MONGO_URL)
   db = client[dbname]
   collection = db.queue
   processables = []

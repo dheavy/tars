@@ -8,7 +8,7 @@ import bs4
 import datetime
 import hashlib
 from ConfigParser import ConfigParser
-from pymongo import MongoReplicaSetClient
+from pymongo import MongoClient
 from mypleasure.providers import factory
 
 
@@ -44,6 +44,7 @@ class Tars:
       collection = config.get('mongo', 'collection')
       queue = config.get('mongo', 'queue')
     else:
+      MONGO_URL = os.environ.get('MONGOHQ_URL')
       host = os.environ['MONGODB_HOST']
       port = int(os.environ['MONGODB_PORT'])
       db = os.environ['MONGODB_DATABASE']
@@ -54,7 +55,7 @@ class Tars:
     # Setup MongoDB.
     self.mongo = {}
     host = host + ':' + str(port)
-    self.mongo['client'] =  MongoReplicaSetClient(host, replicaset='set-54d9d749fcfb14251500053f')
+    self.mongo['client'] =  MongoClient(MONGO_URL)
     self.mongo['db'] = self.mongo['client'][db]
     self.mongo['collection'] = self.mongo['db'][collection]
     self.mongo['queue'] = self.mongo['db'][queue]
