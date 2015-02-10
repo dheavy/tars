@@ -74,8 +74,7 @@ if __name__ == '__main__':
   # Set up and read config for MongoDB.
   mongo_url = os.environ.get('MONGOHQ_URL')
   if mongo_url:
-    conn = pymongo.Connection(mongo_url)
-    client = conn[urlparse(mongo_url).path[1:]]
+    client = MongoClient(mongo_url)
     db = client['mypleasure-videostore']
     queue_collection = 'queue'
   else:

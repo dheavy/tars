@@ -41,8 +41,7 @@ class Tars:
 
     self.mongo = {}
     if mongo_url:
-      conn = pymongo.Connection(mongo_url)
-      self.mongo['client'] = conn[urlparse(mongo_url).path[1:]]
+      self.mongo['client'] = MongoClient(mongo_url)
       self.mongo['db'] = 'mypleasure-videostore'
       self.mongo['collection'] = 'videos'
       self.mongo['queue'] = ''
