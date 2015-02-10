@@ -42,7 +42,7 @@ class Tars:
       port = config.getint('mongo', 'port')
       collection = config.get('mongo', 'collection')
       queue = config.get('mongo', 'queue')
-    elif:
+    else:
       host = os.environ('MONGODB_HOST')
       port = os.environ('MONGODB_PORT')
       db = os.environ('MONGODB_DATABASE')
