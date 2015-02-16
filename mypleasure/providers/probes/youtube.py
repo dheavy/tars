@@ -14,13 +14,13 @@ class Youtube(BaseProbe):
     response = requests.get(self.url)
 
     self.id = self.__extract_id()
-    api_call_url = 'http://gdata.youtube.com/feeds/api/videos/' + self.id + '?v=2&alt=jsonc'
+    api_call_url = 'https://gdata.youtube.com/feeds/api/videos/' + self.id + '?v=2&alt=jsonc'
     api_data = requests.get(api_call_url).json()['data']
 
     self.data['title'] = self.__scrape_title(api_data)
     self.data['poster'] = self.__scrape_poster()
     self.data['method'] = 'iframe'
-    self.data['embed_url'] = 'https://www.youtube.com/embed/' + self.id
+    self.data['embed_url'] = '//www.youtube.com/embed/' + self.id
     self.data['duration'] = self.__scrape_duration(api_data)
 
 
