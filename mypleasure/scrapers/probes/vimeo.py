@@ -2,7 +2,7 @@ import requests
 import urlparse
 import re
 from bs4 import BeautifulSoup
-from mypleasure.providers.probes.base import BaseProbe
+from mypleasure.scrapers.probes.base import BaseProbe
 
 
 class Vimeo(BaseProbe):

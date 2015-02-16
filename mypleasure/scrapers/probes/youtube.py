@@ -1,7 +1,7 @@
 import requests
 import urlparse
 import re
-from mypleasure.providers.probes.base import BaseProbe
+from mypleasure.scrapers.probes.base import BaseProbe
 
 
 class Youtube(BaseProbe):
