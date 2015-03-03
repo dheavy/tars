@@ -103,4 +103,6 @@ if __name__ == '__main__':
   if options.url:
     tars.send_on_mission(args=None, forceUrl=options.url)
   else:
-    pool.map(tars.send_on_mission, args)
+    #pool.map(tars.send_on_mission, args)
+    for arg in args:
+      tars.send_on_mission(arg)
