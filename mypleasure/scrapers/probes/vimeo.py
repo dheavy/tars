@@ -1,5 +1,6 @@
 import requests
 import re
+import sys
 from bs4 import BeautifulSoup
 from mypleasure.scrapers.probes.base import BaseProbe
 
@@ -13,18 +14,23 @@ class Vimeo(BaseProbe):
   def process(self):
     response = requests.get(self.url)
     markup = BeautifulSoup(response.text, 'lxml')
-    video_wrapper = markup.select('.player_container')[0]
+    player_container = markup.select('.player_container')
 
-    self.id = self.__extract_id(video_wrapper)
+    try:
+      video_wrapper = markup.select('.player_container')[0]
+      self.id = self.__extract_id(video_wrapper)
 
-    api_call_url = 'https://vimeo.com/api/v2/video/' + self.id + '.json'
-    api_data = requests.get(api_call_url).json()[0]
+      api_call_url = 'https://vimeo.com/api/v2/video/' + self.id + '.json'
+      api_data = requests.get(api_call_url).json()[0]
 
-    self.data['title'] = self.__scrape_title(api_data)
-    self.data['poster'] = self.__scrape_poster(api_data)
-    self.data['method'] = 'iframe'
-    self.data['embed_url'] = '//player.vimeo.com/video/' + self.id
-    self.data['duration'] = self.__scrape_duration(api_data)
+      self.data['title'] = self.__scrape_title(api_data)
+      self.data['poster'] = self.__scrape_poster(api_data)
+      self.data['method'] = 'iframe'
+      self.data['embed_url'] = '//player.vimeo.com/video/' + self.id
+      self.data['duration'] = self.__scrape_duration(api_data)
+    except IndexError:
+      self.error = True
+
 
   def  __extract_id(self, data):
     return re.search("data-clip-id=\"(\d+)\"", str(data)).group(1)

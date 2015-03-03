@@ -11,6 +11,7 @@ class BaseProbe:
   name = "BaseProbe"
 
   def __init__(self, url):
+    self.error = None
     self.data = {
       'title': None,
       'poster': None,
@@ -24,6 +25,9 @@ class BaseProbe:
 
   def process(self):
     pass
+
+  def get_error(self):
+    return self.error
 
   def get_title(self):
     return self.data['title']

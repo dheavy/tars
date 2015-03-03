@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import urlparse
 import datetime
 import requests
@@ -115,6 +116,12 @@ class Tars:
     # If not provider is to be found, change status to notfound and stop.
     # Otherwise fetch all needed data by invoking provider's method.
     if self.provider is not None:
+
+      # Signal possible error (and quit).
+      if self.provider.get_error():
+        self.__update_queue(self.requester, video, 'error')
+        sys.exit()
+
       title = self.__get_title()
       poster = self.__get_poster()
       method = self.__get_method()
