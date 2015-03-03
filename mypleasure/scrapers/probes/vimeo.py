@@ -1,5 +1,4 @@
 import requests
-import urlparse
 import re
 from bs4 import BeautifulSoup
 from mypleasure.scrapers.probes.base import BaseProbe

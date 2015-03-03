@@ -1,6 +1,5 @@
 import requests
 import urlparse
-import re
 from mypleasure.scrapers.probes.base import BaseProbe
 
 
@@ -32,6 +31,7 @@ class Youtube(BaseProbe):
 
   def __scrape_title(self, data):
     return data['title']
+
 
   def  __scrape_poster(self):
     return 'http://img.youtube.com/vi/' + self.id + '/mqdefault.jpg'
