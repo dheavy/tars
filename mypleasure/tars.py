@@ -117,6 +117,10 @@ class Tars:
     # Otherwise fetch all needed data by invoking provider's method.
     if self.provider is not None:
 
+      video = {}
+      if hash:
+        video['hash'] = hash
+
       # Signal possible error (and quit).
       if self.provider.get_error():
         self.__update_queue(self.requester, video, 'error')
@@ -129,9 +133,6 @@ class Tars:
       embed_url = self.__get_embed_url()
       duration = self.__get_duration()
 
-      video = {}
-      if hash:
-        video['hash'] = hash
       video['title'] = title
       video['poster'] = poster
       video['method'] = method
