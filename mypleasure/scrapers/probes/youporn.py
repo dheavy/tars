@@ -1,6 +1,6 @@
-import requests
-import re
+import requests, re, sys
 from bs4 import BeautifulSoup
+from requests.exceptions import ConnectionError
 from mypleasure.scrapers.probes.base import BaseProbe
 
 
@@ -8,10 +8,16 @@ class Youporn(BaseProbe):
   """A probe class to crawl and scrape Youporn videos."""
 
   name = "Youporn"
+  nsfw = True
 
 
   def process(self):
-    response = requests.get(self.url)
+    try:
+      response = requests.get(self.url)
+    except ConnectionError:
+      print('Could not connect to address: ' + self.url)
+      sys.exit()
+
     markup = BeautifulSoup(response.text, 'lxml')
 
     id = self.__extract_id()

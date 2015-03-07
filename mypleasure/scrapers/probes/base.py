@@ -9,6 +9,7 @@ class BaseProbe:
   """
 
   name = "BaseProbe"
+  nsfw = False
 
   def __init__(self, url):
     self.error = None

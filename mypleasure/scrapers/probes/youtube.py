@@ -7,10 +7,15 @@ class Youtube(BaseProbe):
   """A probe class to crawl and scrape Youtube videos."""
 
   name = "Youtube"
+  nsfw = False
 
 
   def process(self):
-    response = requests.get(self.url)
+    try:
+      response = requests.get(self.url)
+    except ConnectionError:
+      print('Could not connect to address: ' + self.url)
+      sys.exit()
 
     self.id = self.__extract_id()
     api_call_url = 'https://gdata.youtube.com/feeds/api/videos/' + self.id + '?v=2&alt=jsonc'

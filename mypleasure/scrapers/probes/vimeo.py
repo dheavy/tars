@@ -1,7 +1,6 @@
-import requests
-import re
-import sys
+import requests, re, sys
 from bs4 import BeautifulSoup
+from requests.exceptions import ConnectionError
 from mypleasure.scrapers.probes.base import BaseProbe
 
 
@@ -9,10 +8,16 @@ class Vimeo(BaseProbe):
   """A probe class to crawl and scrape Vimeo videos."""
 
   name = "Vimeo"
+  nsfw = False
 
 
   def process(self):
-    response = requests.get(self.url)
+    try:
+      response = requests.get(self.url)
+    except ConnectionError:
+      print('Could not connect to address: ' + self.url)
+      sys.exit()
+
     markup = BeautifulSoup(response.text, 'lxml')
     player_container = markup.select('.player_container')
 
@@ -21,7 +26,12 @@ class Vimeo(BaseProbe):
       self.id = self.__extract_id(video_wrapper)
 
       api_call_url = 'https://vimeo.com/api/v2/video/' + self.id + '.json'
-      api_data = requests.get(api_call_url).json()[0]
+
+      try:
+        api_data = requests.get(api_call_url).json()[0]
+      except ConnectionError:
+        print('Could not connect to address: ' + api_call_url)
+        sys.exit()
 
       self.data['title'] = self.__scrape_title(api_data)
       self.data['poster'] = self.__scrape_poster(api_data)

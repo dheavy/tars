@@ -1,7 +1,6 @@
 import requests
-import re
-import sys
-import urlparse
+import re, sys, urlparse
+from requests.exceptions import ConnectionError
 from mypleasure.scrapers.probes.base import BaseProbe
 
 
@@ -9,12 +8,17 @@ class Dailymotion(BaseProbe):
   """A probe class to crawl and scrape Dailymotion videos."""
 
   name = "Dailymotion"
+  nsfw = False
 
 
   def process(self):
     id = self.__extract_id()
     api_call_url = 'https://api.dailymotion.com/video/' + id + '?fields=duration,embed_url,thumbnail_720_url,title,url'
-    api_data = requests.get(api_call_url).json()
+    try:
+      api_data = requests.get(api_call_url).json()
+    except ConnectionError:
+      print('Could not connect to address: ' + api_call_url)
+      sys.exit()
 
     self.data['title'] = api_data['title']
     self.data['poster'] = api_data['thumbnail_720_url']
