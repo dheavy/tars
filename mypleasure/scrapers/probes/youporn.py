@@ -24,7 +24,7 @@ class Youporn(BaseProbe):
     self.data['title'] = self.__scrape_title(markup)
     self.data['poster'] = self.__scrape_poster(markup)
     self.data['method'] = 'iframe'
-    self.data['embed_url'] = '//www.youporn.com/embed/' + id
+    self.data['embed_url'] = 'http://www.youporn.com/embed/' + id
     self.data['duration'] = self.__scrape_duration()
 
     markup.decompose()
