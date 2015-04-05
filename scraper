@@ -74,9 +74,7 @@ if __name__ == '__main__':
   # Set up and read config for MongoDB.
   mongo_url = os.environ.get('MONGOHQ_URL')
 
-  mongo_url = os.environ.get('MONGOHQ_URL')
-
-  if mongo_url:
+  if mongo_url != None:
     client = MongoClient(mongo_url)
   else:
     config = ConfigParser()
@@ -84,11 +82,12 @@ if __name__ == '__main__':
     client = MongoClient('mongodb://localhost:27017/')
 
   db = client['mypleasure-videostore']
-  collection = db.queue
+  collection = db['queue']
   processables = []
 
   # Prepare a list of what we'll process.
   pending = collection.find({ 'status': 'pending' })
+
 
   for queued in pending:
     processables.append(queued)
