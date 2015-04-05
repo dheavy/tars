@@ -29,7 +29,7 @@ class Dailymotion(BaseProbe):
 
   def __extract_id(self):
     long_id = urlparse.urlparse(self.url).path[7:]
-    id = long_id[0:long_id.find('_')]
+    id = long_id[0:]
     return id
 
 
