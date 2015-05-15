@@ -19,7 +19,8 @@ class Youtube(BaseProbe):
 
     self.id = self.__extract_id()
     api_call_url = 'https://gdata.youtube.com/feeds/api/videos/' + self.id + '?v=2&alt=jsonc'
-    api_data = requests.get(api_call_url).json()['data']
+    json_data = requests.get(api_call_url).json()
+    api_data = json_data['data']
 
     self.data['title'] = self.__scrape_title(api_data)
     self.data['poster'] = self.__scrape_poster()
@@ -31,7 +32,13 @@ class Youtube(BaseProbe):
   def __extract_id(self):
     url_data = urlparse.urlparse(self.url)
     query = urlparse.parse_qs(url_data.query)
-    return query['v'][0]
+    v = query['v'][0]
+    result = None
+    if v != None and '?' in v:
+      result = v[:v.find('?')]
+    else:
+      result = v
+    return result
 
 
   def __scrape_title(self, data):
