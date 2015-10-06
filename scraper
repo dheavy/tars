@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
+import os, argparse
+from tendo import singleton
+#from mypleasure.tars import Tars
+from multiprocessing.pool import ThreadPool
+
+
+def parse_args():
+  """Parse arguments passed in console.
+
+  Returns:
+    The tuple of arguments (url, collection_id, requester) passed in the console.
+  """
+  default_workers_num = os.environ.get('TARS_WORKERS_NUMBER') or 1
+  default_workers_help = ('number of workers to use, ',
+                          str(default_workers_num) + 'by default ',
+                          '(ideal number is twice the number of CPUs ',
+                          'available in machine')
+
+  description = ('Fetch media content for websites via scraping, APIs or (n)oEmbed.\n',
+                 'Uses and updates the media queue.')
+
+  parser = argparse.ArgumentParser(description=description)
+  parser.add_argument('--url', type=str, help='url of media content')
+  parser.add_argument('--workers', type=int, default=default_workers_num, help=default_workers_help)
+  return parser.parse_args()
+
+
+def run():
+  """Run the scraper as a singleton instance."""
+  # Ensure one and only one instance should work
+  # with the proposed amount of workers.
+  lock = singleton.SingleInstance()
+
+  # Get CLI arguments.
+  options = parse_args()
+
+  # Multiprocessing: create a pool of workers for the task.
+  pool = ThreadPool(options.workers)
+
+  # Create the scraper instance.
+  #tars = Tars()
+
+  # Start logging.
+  # ...
+
+
+if __name__ == '__main__': run()
