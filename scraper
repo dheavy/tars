@@ -59,13 +59,22 @@ def run():
 
   db = conn.cursor()
 
-  # Prepare a list of queue elements with "pending" status.
-  db.execute("SELECT * FROM %(table)s WHERE status = 'pending'", { "table": AsIs(settings.DB_TABLE_QUEUE) })
-  pending = db.fetchall()
-  print(pending)
-
-  # Create the scraper instance.
+  # Create the runner instance.
   tars = Tars(db=db)
+
+  # Run TARS in CLI mode if a `url` argument was passed in console.
+  # Otherwise, prepare batches of tasks from the media queue and run them
+  # using the thread pool.
+  if options.url:
+    # log: calling TARS in CLI mode
+    tars.run(url=options.url)
+  else:
+    # Prepare a set (no duplicates!) of queue elements with "pending" status.
+    # Turn them into a list of processable dictionaries used as argument for TARS' work.
+    db.execute("SELECT url, hash, requester FROM %(table)s WHERE status = 'pending'", { "table": AsIs(settings.DB_TABLE_QUEUE) })
+    pending = [item for item in list(set(db.fetchall()))]
+    processables = [{ 'url': elm[0], 'hash': elm[1], 'requester': elm[2] } for elm in pending]
+    pool.map(tars.run, processables)
 
 
 if __name__ == '__main__': run()
