@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
-import os, argparse
+import os, argparse, sys, psycopg2
+import mypleasure.settings as settings
 from tendo import singleton
-#from mypleasure.tars import Tars
+from mypleasure.tars import Tars
+from mypleasure.utils import Logger
+from psycopg2.extensions import AsIs
 from multiprocessing.pool import ThreadPool
 
 
@@ -31,9 +34,13 @@ def parse_args():
 
 def run():
   """Run the scraper as a singleton instance."""
+
   # Ensure one and only one instance should work
   # with the proposed amount of workers.
   lock = singleton.SingleInstance()
+
+  # Set up logger.
+  log = Logger()
 
   # Get CLI arguments.
   options = parse_args()
@@ -41,11 +48,24 @@ def run():
   # Multiprocessing: create a pool of workers for the task.
   pool = ThreadPool(options.workers)
 
-  # Create the scraper instance.
-  #tars = Tars()
+  # Create DB connection and cursor.
+  try:
+    connection_string = 'dbname={0} user={1} password={2} host={3}'.format(settings.DB_NAME, settings.DB_USER, settings.DB_PASSWORD, settings.DB_HOST)
+    conn = psycopg2.connect(connection_string)
+  except:
+    # log: could not connect to DB
+    print("could not connect to DB")
+    sys.exit()
 
-  # Start logging.
-  # ...
+  db = conn.cursor()
+
+  # Prepare a list of queue elements with "pending" status.
+  db.execute("SELECT * FROM %(table)s WHERE status = 'pending'", { "table": AsIs(settings.DB_TABLE_QUEUE) })
+  pending = db.fetchall()
+  print(pending)
+
+  # Create the scraper instance.
+  tars = Tars(db=db)
 
 
 if __name__ == '__main__': run()

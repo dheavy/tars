@@ -2,4 +2,6 @@
 
 
 class Tars:
-  pass
+
+  def __init__(self, db=None):
+    pass
