@@ -6,12 +6,14 @@ import os
 import argparse
 import sys
 import psycopg2
-import mypleasure.settings as settings
+
 from tendo import singleton
-from mypleasure.tars import Tars
-from mypleasure.utils import Logger
 from psycopg2.extensions import AsIs
 from multiprocessing.pool import ThreadPool
+
+from . import settings
+from .tars import Tars
+from .utils import Logger
 
 
 def parse_args():
@@ -46,7 +48,7 @@ def run():
 
     # Ensure one and only one instance should work
     # with the proposed amount of workers.
-    lock = singleton.SingleInstance()
+    singleton.SingleInstance()
 
     # Set up logger.
     log = Logger()
@@ -65,7 +67,7 @@ def run():
         )
         conn = psycopg2.connect(connection_string)
     except:
-        # log: could not connect to DB
+        log.trace("Could not connect to DB")
         print("could not connect to DB")
         sys.exit()
 
@@ -81,9 +83,9 @@ def run():
         # log: calling TARS in CLI mode
         tars.run(url=options.url)
     else:
-        # Prepare a set (no duplicates!) of queue elements with "pending" status.
-        # Turn them into a list of processable dictionaries used as argument
-        # for TARS' work.
+        # Prepare a set (no duplicates!) of queue elements with
+        # "pending" status. Turn them into a list of processable
+        # dictionaries used as argument for TARS' work.
         db.execute(
             "SELECT url, hash, requester FROM %(table)s \
              WHERE status = 'pending'",

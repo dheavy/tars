@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 
-import logging
+# import logging
 
 
 class Logger:
-    pass
+
+    def trace(self, msg):
+        print(msg)
