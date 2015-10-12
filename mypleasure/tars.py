@@ -29,4 +29,5 @@ class Tars:
     def __scrape(self, url):
         pass
 
-    def __update(self, hash, requester, status)
+    def __update(self, hash, requester, status):
+        pass
