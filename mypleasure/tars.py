@@ -14,8 +14,8 @@ class Tars:
             return self.__scrape(url)
 
         # Find if video was already scraped before.
-        # Update currently processed queue job with metadata stored previously, if nay.
-        # Otherwise proceed with scraping.
+        # Update currently processed queue job with metadata stored previously,
+        # if any. Otherwise proceed with scraping.
         self.db.execute(
             "SELECT id, url FROM %(table)s WHERE hash = %(hash)s LIMIT 1",
             {'table': AsIs(settings.DB_TABLE_STORE), 'hash': task['hash']}
@@ -24,7 +24,7 @@ class Tars:
         if metadata:
             return self.__update(task['hash'], task['requester'], 'ready')
         else:
-            self.__scrape(task[], )
+            self.__scrape(task['url'])
 
     def __scrape(self, url):
         pass
