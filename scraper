@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 
-import os, argparse, sys, psycopg2
+import os
+import argparse
+import sys
+import psycopg2
 import mypleasure.settings as settings
 from tendo import singleton
 from mypleasure.tars import Tars
@@ -12,69 +15,87 @@ from multiprocessing.pool import ThreadPool
 
 
 def parse_args():
-  """Parse arguments passed in console.
+    """
+    Parse arguments passed in console.
 
-  Returns:
-    The tuple of arguments (url, collection_id, requester) passed in the console.
-  """
-  default_workers_num = os.environ.get('TARS_WORKERS_NUMBER') or 1
-  default_workers_help = ('number of workers to use, ',
-                          str(default_workers_num) + 'by default ',
-                          '(ideal number is twice the number of CPUs ',
-                          'available in machine')
+    Returns:
+      The tuple of arguments (url, collection_id, requester)
+      passed in the console.
+    """
+    default_workers_num = os.environ.get('TARS_WORKERS_NUMBER') or 1
+    default_workers_help = ('number of workers to use, ',
+                            str(default_workers_num) + 'by default ',
+                            '(ideal number is twice the number of CPUs ',
+                            'available in machine')
 
-  description = ('Fetch media content for websites via scraping, APIs or (n)oEmbed.\n',
-                 'Uses and updates the media queue.')
+    description = ('Fetch media content for websites via scraping, '
+                   'APIs or (n)oEmbed.\n',
+                   'Uses and updates the media queue.')
 
-  parser = argparse.ArgumentParser(description=description)
-  parser.add_argument('--url', type=str, help='url of media content')
-  parser.add_argument('--workers', type=int, default=default_workers_num, help=default_workers_help)
-  return parser.parse_args()
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument('--url', type=str, help='url of media content')
+    parser.add_argument(
+        '--workers', type=int,
+        default=default_workers_num,
+        help=default_workers_help)
+    return parser.parse_args()
 
 
 def run():
-  """Run the scraper as a singleton instance."""
+    """Run the scraper as a singleton instance."""
 
-  # Ensure one and only one instance should work
-  # with the proposed amount of workers.
-  lock = singleton.SingleInstance()
+    # Ensure one and only one instance should work
+    # with the proposed amount of workers.
+    lock = singleton.SingleInstance()
 
-  # Set up logger.
-  log = Logger()
+    # Set up logger.
+    log = Logger()
 
-  # Get CLI arguments.
-  options = parse_args()
+    # Get CLI arguments.
+    options = parse_args()
 
-  # Multiprocessing: create a pool of workers for the task.
-  pool = ThreadPool(options.workers)
+    # Multiprocessing: create a pool of workers for the task.
+    pool = ThreadPool(options.workers)
 
-  # Create DB connection and cursor.
-  try:
-    connection_string = 'dbname={0} user={1} password={2} host={3}'.format(settings.DB_NAME, settings.DB_USER, settings.DB_PASSWORD, settings.DB_HOST)
-    conn = psycopg2.connect(connection_string)
-  except:
-    # log: could not connect to DB
-    print("could not connect to DB")
-    sys.exit()
+    # Create DB connection and cursor.
+    try:
+        connection_string = 'dbname={0} user={1} password={2} host={3}'.format(
+            settings.DB_NAME, settings.DB_USER,
+            settings.DB_PASSWORD, settings.DB_HOST
+        )
+        conn = psycopg2.connect(connection_string)
+    except:
+        # log: could not connect to DB
+        print("could not connect to DB")
+        sys.exit()
 
-  db = conn.cursor()
+    db = conn.cursor()
 
-  # Create the runner instance.
-  tars = Tars(db=db)
+    # Create the runner instance.
+    tars = Tars(db=db)
 
-  # Run TARS in CLI mode if a `url` argument was passed in console.
-  # Otherwise, prepare batches of tasks from the media queue and run them
-  # using the thread pool.
-  if options.url:
-    # log: calling TARS in CLI mode
-    tars.run(url=options.url)
-  else:
-    # Prepare a set (no duplicates!) of queue elements with "pending" status.
-    # Turn them into a list of processable dictionaries used as argument for TARS' work.
-    db.execute("SELECT url, hash, requester FROM %(table)s WHERE status = 'pending'", { "table": AsIs(settings.DB_TABLE_QUEUE) })
-    pending = [item for item in list(set(db.fetchall()))]
-    processables = [{ 'url': elm[0], 'hash': elm[1], 'requester': elm[2] } for elm in pending]
-    pool.map(tars.run, processables)
+    # Run TARS in CLI mode if a `url` argument was passed in console.
+    # Otherwise, prepare batches of tasks from the media queue and run them
+    # using the thread pool.
+    if options.url:
+        # log: calling TARS in CLI mode
+        tars.run(url=options.url)
+    else:
+        # Prepare a set (no duplicates!) of queue elements with "pending" status.
+        # Turn them into a list of processable dictionaries used as argument
+        # for TARS' work.
+        db.execute(
+            "SELECT url, hash, requester FROM %(table)s \
+             WHERE status = 'pending'",
+            {'table': AsIs(settings.DB_TABLE_QUEUE)}
+        )
+        pending = [item for item in list(set(db.fetchall()))]
+        processables = [
+            {'url': elm[0], 'hash': elm[1], 'requester': elm[2]}
+            for elm in pending
+        ]
+        pool.map(tars.run, processables)
 
 
-if __name__ == '__main__': run()
+if __name__ == '__main__':
+    run()

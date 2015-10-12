@@ -5,4 +5,4 @@ import logging
 
 
 class Logger:
-  pass
+    pass
