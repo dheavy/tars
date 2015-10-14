@@ -22,12 +22,12 @@ class Tars:
         )
         metadata = len(self.db.fetchall()) > 0 and self.db.fetchall() or None
         if metadata:
-            return self.__update(task['hash'], task['requester'], 'ready')
+            return self.__updatequeue(task['hash'], task['requester'], 'ready')
         else:
             self.__scrape(task['url'])
 
     def __scrape(self, url):
         pass
 
-    def __update(self, hash, requester, status):
+    def __updatequeue(self, hash, requester, status):
         pass
