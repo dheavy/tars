@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import mypleasure.settings as settings
 from psycopg2.extensions import AsIs
+from . import settings
 
 
 class Tars:
