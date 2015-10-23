@@ -67,7 +67,7 @@ def run():
         )
         conn = psycopg2.connect(connection_string)
     except:
-        log.trace("Could not connect to DB")
+        log.error("Could not connect to DB")
         sys.exit()
 
     db = conn.cursor()

@@ -4,6 +4,7 @@
 import requests
 import urlparse
 from .base import Base
+from mypleasure.utils import Logger
 
 
 class Youtube(Base):
@@ -24,8 +25,12 @@ class Youtube(Base):
         return result
 
     def __get_data_from_api(self, url):
-        json = requests.get(url).json()
-        return json['data']
+        try:
+            json = requests.get(url).json()
+            return json['data']
+        except:
+            log = Logger()
+            log.error('Could not connect to Youtube\'s API')
 
     def __get_api_url(self, id):
         return (
