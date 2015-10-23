@@ -58,8 +58,6 @@ def run():
 
     # Get CLI arguments.
     options = parse_args()
-    print(options)
-    sys.exit()
 
     # Multiprocessing: create a pool of workers for the task.
     pool = ThreadPool(options.workers)
