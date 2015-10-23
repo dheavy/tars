@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from mypleasure.utils import Logger
 
 
 class Base:
@@ -10,6 +11,7 @@ class Base:
     """
 
     def __init__(self, url):
+        self.log = Logger()
         self.url = url
         self.error = None
         self.metadata = {
