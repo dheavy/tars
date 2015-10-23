@@ -16,6 +16,10 @@ from mypleasure.tars import Tars
 from mypleasure.utils import Logger
 
 
+# Set up logger.
+log = Logger()
+
+
 def parse_args():
     """
     Parse arguments passed in console.
@@ -24,22 +28,24 @@ def parse_args():
       The tuple of arguments (url, collection_id, requester)
       passed in the console.
     """
-    default_workers_num = os.environ.get('TARS_WORKERS_NUMBER') or 1
-    default_workers_help = ('number of workers to use, ',
-                            str(default_workers_num) + 'by default ',
-                            '(ideal number is twice the number of CPUs ',
-                            'available in machine')
+    workers_num = os.environ.get('TARS_WORKERS_NUMBER') or 1
+    workers_help = """number of workers to use, %(w)s'
+                   by default (ideal number
+                   is twice the number of CPUs
+                   available in machine')""" % {'w': workers_num}
 
     description = ('Fetch media content for websites via scraping, '
-                   'APIs or (n)oEmbed.\n',
+                   'APIs or (n)oEmbed.\n'
                    'Uses and updates the media queue.')
 
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--url', type=str, help='url of media content')
     parser.add_argument(
-        '--workers', type=int,
-        default=default_workers_num,
-        help=default_workers_help)
+        '--workers',
+        type=int,
+        default=workers_num,
+        help=workers_help
+    )
     return parser.parse_args()
 
 
@@ -50,11 +56,10 @@ def run():
     # with the proposed amount of workers.
     singleton.SingleInstance()
 
-    # Set up logger.
-    log = Logger()
-
     # Get CLI arguments.
     options = parse_args()
+    print(options)
+    sys.exit()
 
     # Multiprocessing: create a pool of workers for the task.
     pool = ThreadPool(options.workers)
