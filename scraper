@@ -83,7 +83,7 @@ def run():
     # using the thread pool.
     if options.url:
         # log: calling TARS in CLI mode
-        tars.run(url=options.url)
+        tars.run(None, url=options.url)
     else:
         # Prepare a set (no duplicates!) of queue elements with
         # "pending" status. Turn them into a list of processable
