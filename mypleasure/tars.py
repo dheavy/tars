@@ -26,7 +26,7 @@ class Tars:
     def __init__(self, db=None):
         self.db = db
 
-    def run(self, task, url=None):
+    def run(self, job, url=None):
         # Run in CLI mode (and stop) if `url` argument was passed.
         if url:
             return self.__scrape(url)
@@ -37,15 +37,15 @@ class Tars:
         # if any. Otherwise proceed with scraping.
         self.db.execute(
             "SELECT id, url FROM %(table)s WHERE hash = %(hash)s LIMIT 1",
-            {'table': AsIs(settings.DB_TABLE_QUEUE), 'hash': task['hash']}
+            {'table': AsIs(settings.DB_TABLE_QUEUE), 'hash': job['hash']}
         )
         metadata = len(self.db.fetchall()) > 0 and self.db.fetchall() or None
         if metadata:
             return self.__update_queue(
-                task['hash'], task['requester'], 'ready'
+                job['hash'], job['requester'], 'ready'
             )
         else:
-            self.__scrape(task['url'])
+            self.__scrape(job['url'])
 
     def __scrape(self, url):
         self.__probe_from_url(url)
