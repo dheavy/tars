@@ -8,8 +8,6 @@ from .base import Base
 
 class Youtube(Base):
 
-    naughty = False
-
     def process(self):
         id = self.__get_id(self.url)
         data = self.__get_data_from_api(self.__get_api_url(id))
@@ -41,6 +39,7 @@ class Youtube(Base):
         self.metadata['embed_url'] = self.__get_embed_url(id)
         self.metadata['poster'] = self.__get_poster(id)
         self.metadata['duration'] = self.__get_duration(json)
+        self.metadata['naughty'] = False
 
     def __get_embed_url(self, id):
         return '//www.youtube.com/embed/%s'.format(id)
