@@ -22,7 +22,7 @@ class Base:
             'duration': None,
             'naughty': None,
             'created_at': None
-        },
+        }
         self.process()
 
     def process(self):
