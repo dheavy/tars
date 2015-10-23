@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
 import requests
 import urlparse
 from mypleasure.probes.base import Base
@@ -25,10 +26,20 @@ class Youtube(Base):
         return result
 
     def __get_data_from_api(self, url):
+        res = requests.get(url)
+
         try:
-            return requests.get(url).json()['data']
-        except:
-            self.log.error('Could not connect to Youtube\'s API')
+            json = res.json()
+            return json['data']
+        except ValueError:
+            if str(res.status_code)[:1] > 2:
+                self.log.error(
+                    'Youtube API error: ' +
+                    res.text.replace('\n', '') +
+                    '  |  headers: ' +
+                    str(res.headers)
+                )
+                sys.exit()
 
     def __get_api_url(self, id):
         return (
