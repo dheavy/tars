@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
 import urlparse
 from psycopg2.extensions import AsIs
 from . import settings
@@ -29,6 +30,7 @@ class Tars:
         # Run in CLI mode (and stop) if `url` argument was passed.
         if url:
             return self.__scrape(url)
+            sys.exit()
 
         # Find if video was already scraped before.
         # Update currently processed queue job with metadata stored previously,
@@ -39,18 +41,20 @@ class Tars:
         )
         metadata = len(self.db.fetchall()) > 0 and self.db.fetchall() or None
         if metadata:
-            return self.__updatequeue(task['hash'], task['requester'], 'ready')
+            return self.__update_queue(
+                task['hash'], task['requester'], 'ready'
+            )
         else:
             self.__scrape(task['url'])
 
     def __scrape(self, url):
-        self.__probefromurl(url)
+        self.__probe_from_url(url)
         pass
 
-    def __updatequeue(self, hash, requester, status):
+    def __update_queue(self, hash, requester, status):
         pass
 
-    def __probefromurl(self, url):
+    def __probe_from_url(self, url):
         # Extract service name from URL.
         netloc = urlparse.urlsplit(url).netloc
         if netloc[0:4] == 'www.':
