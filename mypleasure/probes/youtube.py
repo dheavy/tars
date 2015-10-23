@@ -3,13 +3,13 @@
 
 import requests
 import urlparse
-from .base import Base
-from mypleasure.utils import Logger
+from mypleasure.probes.base import Base
 
 
 class Youtube(Base):
 
     def process(self):
+        self.log.trace('Launching Youtube probe.')
         id = self.__get_id(self.url)
         data = self.__get_data_from_api(self.__get_api_url(id))
         return self.__parse_data(data, id)
@@ -26,11 +26,9 @@ class Youtube(Base):
 
     def __get_data_from_api(self, url):
         try:
-            json = requests.get(url).json()
-            return json['data']
+            return requests.get(url).json()['data']
         except:
-            log = Logger()
-            log.error('Could not connect to Youtube\'s API')
+            self.log.error('Could not connect to Youtube\'s API')
 
     def __get_api_url(self, id):
         return (
