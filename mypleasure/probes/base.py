@@ -9,8 +9,6 @@ class Base:
         url: The URL where TARS should find the metadata to fetch.
     """
 
-    naughty = False
-
     def __init__(self, url):
         self.url = url
         self.error = None
