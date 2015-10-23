@@ -25,7 +25,7 @@ def create(name, url):
     # and build the file path to its file.
     expected_class = name.capitalize()
     filepath = (os.path.dirname(os.path.realpath(__file__)) +
-                '/probes/' + name + '.py')
+                '/' + name + '.py')
 
     # Unpack module name into a variable.
     mod_name, _ = os.path.splitext(os.path.split(filepath)[-1])
