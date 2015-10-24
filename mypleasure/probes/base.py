@@ -30,8 +30,11 @@ class Base:
         pass
 
     def fail(self, msg, data=None):
-        self.log.error(msg)
-        self.log.error(data)
+        self.log.error(
+            url=self.url,
+            msg=msg,
+            data=data
+        )
         sys.exit()
 
     def get_metadata(self):
