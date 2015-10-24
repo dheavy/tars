@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 from mypleasure.utils import Logger
 
 
@@ -27,6 +28,11 @@ class Base:
 
     def process(self):
         pass
+
+    def fail(self, msg, data=None):
+        self.log.error(msg)
+        self.log.error(data)
+        sys.exit()
 
     def get_metadata(self):
         return self.metadata
