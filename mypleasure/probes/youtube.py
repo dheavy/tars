@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-import sys
 import requests
 import urlparse
 from mypleasure.probes.base import Base
@@ -13,7 +12,8 @@ class Youtube(Base):
         self.log.trace('Launching Youtube probe.')
         id = self.__get_id(self.url)
         data = self.__get_data_from_api(self.__get_api_url(id))
-        return self.__parse_data(data, id)
+        d = self.__parse_data(data, id)
+        print(d)
 
     def __get_id(self, url):
         parsed = urlparse.urlparse(url)
@@ -27,24 +27,20 @@ class Youtube(Base):
 
     def __get_data_from_api(self, url):
         res = requests.get(url)
-
-        try:
-            json = res.json()
-            return json['data']
-        except ValueError:
-            if str(res.status_code)[:1] > 2:
-                self.log.error(
-                    'Youtube API error: ' +
-                    res.text.replace('\n', '') +
-                    '  |  headers: ' +
-                    str(res.headers)
-                )
-                sys.exit()
+        json = res.json()
+        if 'error' in json:
+            self.fail(
+                'Youtube API call\nURL: %(url)s \nError: %(err)s'
+                % {'url': url, 'err': json['error']}
+            )
+        else:
+            return json
 
     def __get_api_url(self, id):
         return (
-            'https://gdata.youtube.com/feeds/api/videos/ \
-            %s?v=2&alt=jsonc'.format(id)
+            "https://noembed.com/embed?url=" +
+            "https://www.youtube.com/watch?v=%(id)s"
+            % {'id': id}
         )
 
     def __parse_data(self, json, id):
@@ -62,6 +58,7 @@ class Youtube(Base):
         return '//img.youtube.com/vi/%s/mqdefault.jpg'.format(id)
 
     def __get_duration(self, json):
-        minutes, seconds = divmod(json['data'])
-        hours, minutes = divmod(minutes, 60)
-        return "%02d:%02d:%02d" % (hours, minutes, seconds)
+        pass
+        # minutes, seconds = divmod(json)
+        # hours, minutes = divmod(minutes, 60)
+        # return "%02d:%02d:%02d" % (hours, minutes, seconds)
