@@ -10,7 +10,8 @@ class Logger:
         print(msg)
 
     def error(self, url=None, msg=None, data=None):
-        print('URL:' + url + '\n' + msg)
+        report = '----\nERROR :(\n' + 'Job URL: ' + url + '\n' + msg
         if data:
-            print(data)
+            report += data
+        print(report)
         # TODO: send email and Slack message
