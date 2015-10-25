@@ -16,7 +16,11 @@ class Youtube(Base):
         self.log.trace('Launching Youtube probe.')
         id = self.__get_id(self.url)
         data, api_used = self.__get_data_from_api(id)
-        return self.__parse_data(data, id, api_used)
+        if data:
+            return self.__parse_data(data, id, api_used)
+        else:
+            self.failed = True
+            return None
 
     def __get_id(self, url):
         parsed = urlparse.urlparse(url)
