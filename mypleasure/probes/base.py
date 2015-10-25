@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
+from datetime import datetime
 from mypleasure.utils import Logger
 
 
@@ -12,9 +12,10 @@ class Base:
     """
 
     def __init__(self, url):
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.log = Logger()
         self.url = url
-        self.error = None
+        self.failed = False
         self.metadata = {
             'title': None,
             'original_url': None,
@@ -22,7 +23,7 @@ class Base:
             'poster': None,
             'duration': None,
             'naughty': None,
-            'created_at': None
+            'created_at': now
         }
         self.process()
 
@@ -35,7 +36,7 @@ class Base:
             msg=msg,
             data=data
         )
-        sys.exit()
+        self.failed = True
 
     def get_metadata(self):
         return self.metadata
