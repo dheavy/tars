@@ -86,6 +86,8 @@ def run():
         metadata = tars.run(None, url=options.url)
         if metadata:
             print metadata
+        else:
+            print 'No metadata... TARS probably failed.'
     else:
         # Prepare a set (no duplicates!) of queue elements with
         # "pending" status. Turn them into a list of processable
