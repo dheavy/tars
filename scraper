@@ -82,8 +82,10 @@ def run():
     # Otherwise, prepare batches of tasks from the media queue and run them
     # using the thread pool.
     if options.url:
-        # log: calling TARS in CLI mode
-        tars.run(None, url=options.url)
+        log.trace('Calling TARS in console mode.')
+        metadata = tars.run(None, url=options.url)
+        if metadata:
+            print metadata
     else:
         # Prepare a set (no duplicates!) of queue elements with
         # "pending" status. Turn them into a list of processable
