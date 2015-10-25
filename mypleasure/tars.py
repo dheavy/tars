@@ -29,7 +29,7 @@ class Tars:
     def run(self, job, url=None):
         # Run in CLI mode (and stop) if `url` argument was passed.
         if url:
-            return self.__scrape(url)
+            return self.__fetch(url)
             sys.exit()
 
         # Find if video was already scraped before.
@@ -45,11 +45,13 @@ class Tars:
                 job['hash'], job['requester'], 'ready'
             )
         else:
-            self.__scrape(job['url'])
+            self.__fetch(job['url'])
 
-    def __scrape(self, url):
-        self.__probe_from_url(url)
-        pass
+    def __fetch(self, url):
+        probe = self.__probe_from_url(url)
+        if probe.failed:
+            return None
+        return probe.get_metadata()
 
     def __update_queue(self, hash, requester, status):
         pass
