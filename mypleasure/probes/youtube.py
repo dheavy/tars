@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 import os
 import isodate
 import requests
@@ -45,35 +43,46 @@ class Youtube(Base):
         return json, api_used
 
     def __get_data_from_youtube(self, url):
-        res = requests.get(url)
         try:
-            json = res.json()
-            if 'items' in json:
-                if len(json['items']) == 0:
-                    self.fail(
-                        'Youtube API\nURL: ' + url + '\n' +
-                        'Result payload is empty...'
-                    )
-                else:
-                    self.api_used = 'youtube'
-                    return json['items'][0]
+            res = requests.get(url)
+            try:
+                json = res.json()
+                if 'items' in json:
+                    if len(json['items']) == 0:
+                        self.fail(
+                            'Youtube API\nURL: ' + url + '\n' +
+                            'Result payload is empty...'
+                        )
+                        return None
+                    else:
+                        self.api_used = 'youtube'
+                        return json['items'][0]
+            except:
+                self.fail(
+                    'Youtube API\nURL: ' + url + '\n' +
+                    'Failed to fetch JSON data from API'
+                )
+                return None
         except:
-            self.fail(
-                'Youtube API\nURL: ' + url + '\n' +
-                'Failed to fetch JSON data from API'
-            )
+            self.fail('Could not connect to address ' + url)
+            return None
 
     def __get_data_from_noembed(self, url):
-        res = requests.get(url)
-        json = res.json()
-        if 'error' in json:
-            self.fail(
-                'Noembed (Youtube)\nURL: %(url)s \nError: %(err)s'
-                % {'url': url, 'err': json['error']}
-            )
-        else:
-            self.api_used = 'noembed'
-            return json
+        try:
+            res = requests.get(url)
+            json = res.json()
+            if 'error' in json:
+                self.fail(
+                    'Noembed (Youtube)\nURL: %(url)s \nError: %(err)s'
+                    % {'url': url, 'err': json['error']}
+                )
+                return None
+            else:
+                self.api_used = 'noembed'
+                return json
+        except:
+            self.fail('Could not connect to address ' + url)
+            return None
 
     def __get_api_url(self, id, service=None):
         if service == 'youtube':
