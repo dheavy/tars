@@ -33,7 +33,6 @@ class Vimeo(Base):
         if markup:
             try:
                 player_container = markup.select('.player_container')
-                markup.decompose()
                 return re.search(
                     "data-clip-id=\"(\d+)\"",
                     str(player_container[0])
@@ -44,6 +43,8 @@ class Vimeo(Base):
                     data=player_container
                 )
                 return None
+            finally:
+                markup.decompose()
         return None
 
     def __get_api_url(self, id):
