@@ -9,7 +9,7 @@ class Vimeo(Base):
 
     def process(self):
         self.log.trace('Launching Vimeo probe.')
-        id = self.__get_id(self.url)
+        id = self.__get_id(self.__get_page_markup(self.url))
         data = self.__get_data_from_api(self.__get_api_url(id))
         if data:
             return self.__parse_data(data, id)
@@ -33,6 +33,7 @@ class Vimeo(Base):
         if markup:
             try:
                 player_container = markup.select('.player_container')
+                markup.decompose()
                 return re.search(
                     "data-clip-id=\"(\d+)\"",
                     str(player_container[0])
