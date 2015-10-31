@@ -37,6 +37,7 @@ class Base:
             data=data
         )
         self.failed = True
+        return None
 
     def get_metadata(self):
         return self.metadata
