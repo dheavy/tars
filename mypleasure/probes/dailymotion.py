@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 import requests
 import urlparse
 from mypleasure.probes.base import Base
@@ -27,9 +25,10 @@ class Dailymotion(Base):
         except:
             self.fail(
                 'Dailymotion API\nURL: ' + url + '\n' +
-                'Something went wrong when calling API ' +
+                'Something went wrong while calling API ' +
                 'when processing results...'
             )
+            return None
 
     def __get_api_url(self, id):
         return (
