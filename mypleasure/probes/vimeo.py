@@ -14,7 +14,7 @@ class Vimeo(Base):
         if data:
             return self.__parse_data(data, id)
         else:
-            self.failed = None
+            self.failed = True
             return None
 
     def __get_page_markup(self, url):
