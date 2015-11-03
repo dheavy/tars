@@ -36,7 +36,7 @@ class Youporn(Base):
     def __parse_data(self, markup, id):
         self.metadata['title'] = markup.select('#watchHeader h1')[0].string
         self.metadata['original_url'] = self.url
-        self.metadata['embed_url'] = 'http://www.youporn.com/embed/' + id
+        self.metadata['embed_url'] = '//www.youporn.com/embed/' + id
         self.metadata['poster'] = markup.select('#player-html5')[0]['poster']
         self.metadata['duration'] = self.__get_duration(
             self.url, self.metadata['title']
