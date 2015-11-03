@@ -70,7 +70,9 @@ def run():
         )
         conn = psycopg2.connect(connection_string)
     except:
-        log.error("Could not connect to DB")
+        msg = 'Could not connect to DB. Have a look at the DB'
+        msg += ' settings in .env or environment variables.'
+        log.error(url='Not yet parsed.', msg=msg)
         sys.exit()
 
     db = conn.cursor()
