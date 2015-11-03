@@ -18,3 +18,5 @@ DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
 DB_HOST = os.environ.get('DB_HOST', '')
 DB_TABLE_STORE = os.environ.get('DB_TABLE_STORE', '')
 DB_TABLE_QUEUE = os.environ.get('DB_TABLE_QUEUE', '')
+
+YOUTUBE_API_KEY = os.environ.get('YOUTUBE_API_KEY', '')
