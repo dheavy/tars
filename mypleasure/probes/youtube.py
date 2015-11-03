@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-import os
 import isodate
 import requests
 import urlparse
 
+from mypleasure import settings
 from mypleasure.probes.base import Base
 
 
 class Youtube(Base):
 
     def process(self):
-        self.api_used = None
         self.log.trace('Launching Youtube probe.')
         id = self.__get_id(self.url)
         data, api_used = self.__get_data_from_api(id)
@@ -55,7 +54,6 @@ class Youtube(Base):
                         )
                         return None
                     else:
-                        self.api_used = 'youtube'
                         return json['items'][0]
             except:
                 self.fail(
@@ -78,7 +76,6 @@ class Youtube(Base):
                 )
                 return None
             else:
-                self.api_used = 'noembed'
                 return json
         except:
             self.fail('Could not connect to address ' + url)
@@ -86,7 +83,7 @@ class Youtube(Base):
 
     def __get_api_url(self, id, service=None):
         if service == 'youtube':
-            key = os.environ.get('YOUTUBE_API_KEY')
+            key = settings.YOUTUBE_API_KEY
             if key:
                 return (
                     "https://www.googleapis.com/youtube/v3/videos" +
@@ -122,10 +119,15 @@ class Youtube(Base):
         return "//www.youtube.com/embed/{0}".format(id)
 
     def __get_poster(self, id, api_used, json=False):
+        tn = '//img.youtube.com/vi/%s/mqdefault.jpg'.format(id)
         if api_used == 'youtube' and json:
-            return json['snippet']['thumbnails']['standard']['url']
+            try:
+                return json['snippet']['thumbnails']['default']['url']
+            except:
+                pass
         else:
             return '//img.youtube.com/vi/%s/mqdefault.jpg'.format(id)
+        return tn
 
     def __get_duration(self, api_used, json=False):
         if api_used == 'youtube' and json:
