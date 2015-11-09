@@ -1,107 +1,111 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 import os
+import sys
 import argparse
+import psycopg2
+
 from tendo import singleton
+from psycopg2.extensions import AsIs
+from multiprocessing.pool import ThreadPool
+
+from mypleasure import settings
 from mypleasure.tars import Tars
-from ConfigParser import ConfigParser
-import pymongo
-from pymongo import MongoClient
-from multiprocessing.pool import ThreadPool as Pool
+from mypleasure.utils import Logger
+
+
+# Set up logger.
+log = Logger()
 
 
 def parse_args():
-  """Parse argument passed in CLI.
+    """
+    Parse arguments passed in console.
 
-  Returns:
-    The tuple of arguments (url, id, requester) passed in CLI.
-  """
-  mongo_url = os.environ.get('MONGOHQ_URL')
+    Returns:
+      The tuple of arguments (url, collection_id, requester)
+      passed in the console.
+    """
+    workers_num = os.environ.get('TARS_WORKERS_NUMBER') or 1
+    workers_help = """number of workers to use, %(w)s'
+                   by default (ideal number
+                   is twice the number of CPUs
+                   available in machine')""" % {'w': workers_num}
 
-  if not mongo_url:
-    config = ConfigParser()
-    config.read('settings/settings.cfg')
-    workers = config.get('app', 'workers')
-  else:
-    workers = os.environ['TARS_WORKERS']
+    description = ('Fetch media content for websites via scraping, '
+                   'APIs or (n)oEmbed.\n'
+                   'Uses and updates the media queue.')
 
-  parser = argparse.ArgumentParser(description='Crawls and scrapes content from websites ("scrapers").')
-  parser.add_argument('--url', type=str, help='url to scrape')
-  parser.add_argument('--workers', type=int, default=workers, help='number of workers to use, ' + workers + ' by default - ideal number is twice the number of CPUs available on the machine')
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument('--url', type=str, help='url of media content')
+    parser.add_argument(
+        '--workers',
+        type=int,
+        default=workers_num,
+        help=workers_help
+    )
+    return parser.parse_args()
 
-  return parser.parse_args()
 
+def run():
+    """Run the scraper as a singleton instance."""
+
+    # Ensure one and only one instance should work
+    # with the proposed amount of workers.
+    singleton.SingleInstance()
+
+    # Get CLI arguments.
+    options = parse_args()
+
+    # Multiprocessing: create a pool of workers for the task.
+    pool = ThreadPool(options.workers)
+
+    # Create DB connection and cursor.
+    try:
+        connection_string = 'dbname={0} user={1} password={2} host={3}'.format(
+            settings.DB_NAME, settings.DB_USER,
+            settings.DB_PASSWORD, settings.DB_HOST
+        )
+        conn = psycopg2.connect(connection_string)
+    except:
+        msg = 'Could not connect to DB. Have a look at the DB'
+        msg += ' settings in .env or environment variables.'
+        log.error(url='Not yet parsed.', msg=msg)
+        sys.exit()
+
+    db = conn.cursor()
+
+    # Create the runner instance.
+    tars = Tars(db=db)
+
+    # Run TARS in CLI mode if a `url` argument was passed in console.
+    # Otherwise, prepare batches of tasks from the media queue and run them
+    # using the thread pool.
+    if options.url:
+        log.trace('Calling TARS in console mode.')
+        metadata = tars.run(None, url=options.url)
+        if metadata:
+            print metadata
+        else:
+            print 'No metadata... TARS probably failed.'
+    else:
+        # Prepare a set (no duplicates!) of queue elements with
+        # "pending" status. Turn them into a list of processable
+        # dictionaries used as argument for TARS' work.
+        db.execute(
+            "SELECT url, hash, requester FROM %(table)s \
+             WHERE status = 'pending'",
+            {'table': AsIs(settings.DB_TABLE_QUEUE)}
+        )
+        pending = [item for item in list(set(db.fetchall()))]
+        processables = [
+            {'url': elm[0], 'hash': elm[1], 'requester': elm[2]}
+            for elm in pending
+        ]
+        pool.map(tars.run, processables)
 
 
 if __name__ == '__main__':
-
-  """
-  # Usable videos to test.
-
-  http://www.youporn.com/watch/10436027/18yo-busty-buffy-fucks-for-cum-on-tits/?from=related3&al=2&from_id=10436027&pos=5
-  http://www.youporn.com/watch/9565375/lesbea-busty-lesbian-has-g-spot-orgasm-during-soapy-romp-in-the-bath-tub/?from=vbwn
-  http://www.youporn.com/watch/9627203/a-class-in-sexercise/?from=vbwn
-  http://www.youporn.com/watch/10717535/mrs-santa-gets-a-cream-pie-for-xxxmas/
-  http://www.youporn.com/watch/9082257/like-my-naughty-miss-santa-outfit-now-watch-me-suck-and-fuck-you-in-it/
-  http://www.youporn.com/watch/10781107/porn-films-3d-explicit-dildo-gymnastics/
-  http://www.youporn.com/watch/10356485/doubleviewcasting-mila-regular/
-  http://www.youporn.com/watch/8395983/lone-cock-rider-playvision/
-  http://www.youporn.com/watch/10778551/rachel-loves-to-please/
-  http://www.youporn.com/watch/10774689/love-creampie-exotic-busty-beauty-needs-two-men-to-satisfy-her/
-  http://www.youporn.com/watch/9442047/her-pussy-gets-very-creamy-masturbating-in-gym/
-  http://www.youporn.com/watch/10314337/evilangel-sheena-shaw-s-anal-insertion-and-rim-job/
-  http://www.youporn.com/watch/10350691/big-ass-blonde-beauty-alexis-texas-is-a-whore/
-  http://www.youporn.com/watch/10501033/horny-redhead-faye-reagan-fucks-her-twat-with-a-toy/
-  http://www.youporn.com/watch/10621025/do-you-have-any-extra-room-for-my-tongue-critical-x/
-  http://www.youporn.com/watch/10684159/lesbian-sex-shower/
-  http://www.youporn.com/watch/10221345/sperm-swap-three-way-with-two-hot-babes-and-sperm-swap/
-  http://www.youporn.com/watch/10720537/femaleagent-sexy-agents-asshole-licked-and-her-perfect-pussy-fucked-in-doggy/
-  http://www.youporn.com/watch/10338569/latina-pornstar-mari-possa-with-huge-natural-dd-boobs-masturbates/
-  """
-
-  # One instance of the scraper should work
-  # with the proposed amount of workers
-  # to create a pool of Tars' missions.
-  me = singleton.SingleInstance()
-  options = parse_args()
-  pool = Pool(options.workers)
-  #pool = Pool(4)
-  tars = Tars()
-
-  print('scraper running...')
-
-  # Set up and read config for MongoDB.
-  mongo_url = os.environ.get('MONGOHQ_URL')
-
-  if mongo_url != None:
-    client = MongoClient(mongo_url)
-  else:
-    config = ConfigParser()
-    config.read('settings/settings.cfg')
-    client = MongoClient('mongodb://localhost:27017/')
-
-  db = client['mypleasure-videostore']
-  collection = db['queue']
-  processables = []
-
-  # Prepare a list of what we'll process.
-  pending = collection.find({ 'status': 'pending' })
-
-
-  for queued in pending:
-    processables.append(queued)
-
-  # Ensure there are no duplicates.
-  processables = [dict(tupleized) for tupleized in tuple(item.items() for item in processables)]
-
-  # Create the tuples of arguments for our pool.
-  args = [{ 'url': elm['url'], 'requester': elm['requester'], 'hash': elm['hash'] } for elm in processables]
-
-  # Godspeed.
-  if options.url:
-    tars.send_on_mission(args=None, forceUrl=options.url)
-  else:
-    pool.map(tars.send_on_mission, args)
-    #for arg in args:
-    #  tars.send_on_mission(arg)
+    run()
