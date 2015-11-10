@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 import sys
 import urlparse
 from psycopg2.extensions import AsIs
