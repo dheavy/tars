@@ -19,18 +19,18 @@ log = Logger()
 
 
 def parse_args():
-    """
+    '''
     Parse arguments passed in console.
 
     Returns:
       The tuple of arguments (url, collection_id, requester)
       passed in the console.
-    """
+    '''
     workers_num = os.environ.get('TARS_WORKERS_NUMBER') or 1
-    workers_help = """number of workers to use, %(w)s'
+    workers_help = '''number of workers to use, %(w)s'
                    by default (ideal number
                    is twice the number of CPUs
-                   available in machine')""" % {'w': workers_num}
+                   available in machine')''' % {'w': workers_num}
 
     description = ('Fetch media content for websites via scraping, '
                    'APIs or (n)oEmbed.\n'
@@ -48,7 +48,7 @@ def parse_args():
 
 
 def run():
-    """Run the scraper as a singleton instance."""
+    '''Run the scraper as a singleton instance.'''
 
     # Ensure one and only one instance should work
     # with the proposed amount of workers.
@@ -101,6 +101,8 @@ def run():
                 {'table': AsIs(settings.DB_TABLE_QUEUE)}
             )
         except psycopg2.DatabaseError, e:
+            if cur:
+                cur.rollback()
             log.error(url='Not yet parsed.', msg=e)
             sys.exit(1)
         pending = [item for item in list(set(cur.fetchall()))]
@@ -109,6 +111,7 @@ def run():
             for elm in pending
         ]
         pool.map(tars.run, processables)
+        conn.close()
 
 
 if __name__ == '__main__':
