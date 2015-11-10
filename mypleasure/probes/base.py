@@ -4,12 +4,12 @@ from mypleasure.utils import Logger
 
 
 class Base:
-    """
+    '''
     The interface blueprint for probes.
 
     Args:
         url: The URL where TARS should find the metadata to fetch.
-    """
+    '''
 
     def __init__(self, url):
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
