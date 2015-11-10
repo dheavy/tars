@@ -67,16 +67,18 @@ def run():
             settings.DB_PASSWORD, settings.DB_HOST
         )
         conn = psycopg2.connect(connection_string)
-    except:
+        cur = conn.cursor()
+    except psycopg2.DatabaseError, e:
+        if cur:
+            cur.rollback()
         msg = 'Could not connect to DB. Have a look at the DB'
-        msg += ' settings in .env or environment variables.'
+        msg += ' settings in .env or environment variables.\n'
+        msg += e
         log.error(url='Not yet parsed.', msg=msg)
-        sys.exit()
-
-    db = conn.cursor()
+        sys.exit(1)
 
     # Create the runner instance.
-    tars = Tars(db=db)
+    tars = Tars(db=cur)
 
     # Run TARS in CLI mode if a `url` argument was passed in console.
     # Otherwise, prepare batches of tasks from the media queue and run them
@@ -92,12 +94,16 @@ def run():
         # Prepare a set (no duplicates!) of queue elements with
         # "pending" status. Turn them into a list of processable
         # dictionaries used as argument for TARS' work.
-        db.execute(
-            "SELECT url, hash, requester FROM %(table)s \
-             WHERE status = 'pending'",
-            {'table': AsIs(settings.DB_TABLE_QUEUE)}
-        )
-        pending = [item for item in list(set(db.fetchall()))]
+        try:
+            cur.execute(
+                "SELECT url, hash, requester FROM %(table)s \
+                 WHERE status = 'pending'",
+                {'table': AsIs(settings.DB_TABLE_QUEUE)}
+            )
+        except psycopg2.DatabaseError, e:
+            log.error(url='Not yet parsed.', msg=e)
+            sys.exit(1)
+        pending = [item for item in list(set(cur.fetchall()))]
         processables = [
             {'url': elm[0], 'hash': elm[1], 'requester': elm[2]}
             for elm in pending
