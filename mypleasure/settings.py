@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
@@ -16,6 +14,10 @@ DB_NAME = os.environ.get('DB_NAME', '')
 DB_USER = os.environ.get('DB_USER', '')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
 DB_HOST = os.environ.get('DB_HOST', '')
+TESTING_DB_NAME = os.environ.get('TESTING_DB_NAME', '')
+TESTING_DB_USER = os.environ.get('TESTING_DB_USER', '')
+TESTING_DB_PASSWORD = os.environ.get('TESTING_DB_PASSWORD', '')
+TESTING_DB_HOST = os.environ.get('TESTING_DB_HOST', '')
 DB_TABLE_STORE = os.environ.get('DB_TABLE_STORE', '')
 DB_TABLE_QUEUE = os.environ.get('DB_TABLE_QUEUE', '')
 
