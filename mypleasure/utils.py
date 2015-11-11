@@ -11,12 +11,11 @@ class Logger:
 
         Args:
             verbosity: 0 silences logger in console, 1 prints output.
-            reporting: 0 silences reporting,
-                       1 logs into logfile,
-                       2 sends Slack message only,
-                       3 sends email only,
-                       4 sends both Slack and email messages.
-                       Both 2, 3 and 4 also print to logfile.
+            reporting: 0 silences reporting, 1 logs into logfile,
+                2 sends Slack message only,
+                3 sends email only,
+                4 sends both Slack and email messages.
+                Both 2, 3 and 4 also print to logfile.
         '''
         self.verbosity = verbosity
         self.reporting = reporting
