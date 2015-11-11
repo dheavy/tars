@@ -9,11 +9,21 @@ class Base:
 
     Args:
         url: The URL where TARS should find the metadata to fetch.
+        logconfig: Dictionary where keys/values match Logger's configuration.
+            Defaults to None.
     '''
 
-    def __init__(self, url):
+    def __init__(self, url, logconfig=None):
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.log = Logger()
+
+        # Capture logger config with fallback to default values.
+        setlog = lambda list, key: list[key] if list and key in list else 1
+
+        self.log = Logger(
+            verbosity=setlog(logconfig, 'verbosity'),
+            reporting=setlog(logconfig, 'reporting')
+        )
+
         self.url = url
         self.failed = False
         self.metadata = {

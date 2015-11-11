@@ -3,13 +3,15 @@ import os
 import imp
 
 
-def create(name, url):
+def create(name, url, logconfig=None):
     """
     Create a new instance of a probe matching the given name.
 
     Args:
         name: Name of the website - should match with the name of a probe.
         url: URL to scrape - injected into the probe instance upon creation.
+        logconfig: Dictionary where keys/values match Logger's configuration.
+            Passes logging config down to spawned probe. Defaults to None.
 
     Returns:
         An instance of the matching probe, if any matches, or None otherwise.
@@ -35,8 +37,10 @@ def create(name, url):
         return None
 
     # If loaded module has expected class, artifically load a class instance
-    # with expected `url` argument in it.
+    # with original arguments passed down into it.
     if hasattr(py_module, expected_class):
-        class_inst = getattr(py_module, expected_class)(url)
+        class_inst = getattr(py_module, expected_class)(
+            url, logconfig=logconfig
+        )
 
     return class_inst
