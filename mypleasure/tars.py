@@ -52,7 +52,7 @@ class Tars:
 
         # Run in CLI mode (and stop) if `url` argument was passed.
         if url:
-            return self.__fetch(url)
+            return self.__fetch(url=url)
             sys.exit()
 
         # Find if video was already scraped before.
@@ -68,16 +68,30 @@ class Tars:
                 job['hash'], job['requester'], 'ready'
             )
         else:
-            self.__fetch(job['url'])
+            self.__fetch(job=job)
 
-    def __fetch(self, url):
-        probe = self.__probe_from_url(url)
+    def __fetch(self, url=None, job=None):
+        if job and 'url' in job:
+            probe = self.__probe_from_url(job['url'])
+        else:
+            probe = self.__probe_from_url(url)
         if probe.failed:
+            if job and all(k in job for k in ('requester', 'status', 'hash')):
+                self.__update_queue(job['hash'], job['requester'], 'failed')
             return None
         return probe.get_metadata()
 
     def __update_queue(self, hash, requester, status):
-        pass
+        self.db.execute(
+            "UPDATE %(t)s SET status=%(s)s WHERE \
+            requester=%(r)s AND hash=%(h)s",
+            {
+                't': AsIs(settings.DB_TABLE_QUEUE),
+                's': status,
+                'h': hash,
+                'r': requester
+            }
+        )
 
     def __probe_from_url(self, url):
         # Extract service name from URL.

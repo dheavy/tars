@@ -121,7 +121,15 @@ class YoutubeFailureReturnsNone(MyPleasureTestCase):
         self.insert_in_mediaqueue(hash, url, 1, 1, 'pending')
 
         tars = Tars(db=self.cur)
-        result = tars.run(None, url=url, verbosity=0, reporting=0)
+        job = {
+            'hash': hash,
+            'url': url,
+            'requester': 1,
+            'collection_id': 1,
+            'status': 'pending',
+            'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        result = tars.run(job, verbosity=0, reporting=0)
 
         self.assertIs(result, None)
 
@@ -134,7 +142,15 @@ class YoutubeFailureMarksStatusAsFailed(MyPleasureTestCase):
         self.insert_in_mediaqueue(hash, url, 1, 1, 'pending')
 
         tars = Tars(db=self.cur)
-        tars.run(None, url=url, verbosity=0, reporting=0)
+        job = {
+            'hash': hash,
+            'url': url,
+            'requester': 1,
+            'collection_id': 1,
+            'status': 'pending',
+            'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        tars.run(job, verbosity=0, reporting=0)
         row = self.get_from_mediaqueue(hash)
 
         self.assertTupleEqual(row, (hash, 'failed'))
