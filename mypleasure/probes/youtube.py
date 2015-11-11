@@ -10,7 +10,7 @@ from mypleasure.probes.base import Base
 class Youtube(Base):
 
     def process(self):
-        self.log.trace('Launching Youtube probe.')
+        self.log.trace('\nLaunching Youtube probe.')
         id = self.__get_id(self.url)
         data, api_used = self.__get_data_from_api(id)
         if data:
@@ -22,7 +22,7 @@ class Youtube(Base):
     def __get_id(self, url):
         parsed = urlparse.urlparse(url)
         query = urlparse.parse_qs(parsed.query)
-        getvar = query['v'][0]
+        getvar = ('v' in query and len(query['v']) > 0) and query['v'][0] or ''
         if getvar and '?' in getvar:
             result = getvar[:getvar.find('?')]
         else:
