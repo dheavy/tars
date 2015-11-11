@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # import logging
+from datetime import datetime
 
 
 class Logger:
@@ -8,7 +9,8 @@ class Logger:
         print(msg)
 
     def error(self, url='', msg='', data=None):
-        report = '----\nERROR :(\n' + 'Job URL: ' + url + '\n' + msg
+        report = '----\n+ ERROR ({0}) +\n'.format(datetime.now())
+        report += 'Job URL: ' + url + '\n' + msg
         if data:
             report += str(data)
         print(report)
