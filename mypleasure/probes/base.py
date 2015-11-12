@@ -25,6 +25,7 @@ class Base:
         )
 
         self.url = url
+        self.processed = False
         self.failed = False
         self.metadata = {
             'title': None,
@@ -35,7 +36,6 @@ class Base:
             'naughty': None,
             'created_at': now
         }
-        self.process()
 
     def process(self):
         pass
@@ -50,4 +50,7 @@ class Base:
         return None
 
     def get_metadata(self):
+        if not self.processed:
+            self.process()
+            self.processed = True
         return self.metadata
