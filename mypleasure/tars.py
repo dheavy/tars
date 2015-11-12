@@ -59,14 +59,11 @@ class Tars:
         # Update currently processed queue job with metadata stored previously,
         # if any. Otherwise proceed with scraping.
         self.db.execute(
-            "SELECT id, url FROM %(table)s WHERE hash = %(hash)s LIMIT 1",
-            {'table': AsIs(settings.DB_TABLE_QUEUE), 'hash': job['hash']}
+            "SELECT id, origin_url FROM %(t)s WHERE hash = %(h)s LIMIT 1",
+            {'t': AsIs(settings.DB_TABLE_STORE), 'h': job['hash']}
         )
-        metadata = len(self.db.fetchall()) > 0 and self.db.fetchall() or None
-        if metadata:
-            return self.__update_queue(
-                job['hash'], job['requester'], 'ready'
-            )
+        if len(self.db.fetchall()) > 0 and self.db.fetchall()[0]:
+            return self.__update_queue(job['hash'], job['requester'], 'ready')
         else:
             self.__fetch(job=job)
 
