@@ -14,10 +14,11 @@ class Youtube(Base):
         id = self.__get_id(self.url)
         data, api_used = self.__get_data_from_api(id)
         if data:
-            return self.__parse_data(data, id, api_used)
+            metadata = self.__parse_data(data, id, api_used)
         else:
             self.failed = True
-            return None
+            metadata = None
+        return metadata
 
     def __get_id(self, url):
         parsed = urlparse.urlparse(url)

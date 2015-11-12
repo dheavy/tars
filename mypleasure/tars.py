@@ -65,18 +65,24 @@ class Tars:
         if len(self.db.fetchall()) > 0 and self.db.fetchall()[0]:
             return self.__update_queue(job['hash'], job['requester'], 'ready')
         else:
-            self.__fetch(job=job)
+            return self.__fetch(job=job)
 
     def __fetch(self, url=None, job=None):
         if job and 'url' in job:
             probe = self.__probe_from_url(job['url'])
         else:
             probe = self.__probe_from_url(url)
+
+        metadata = probe.get_metadata()
+
         if probe.failed:
             if job and all(k in job for k in ('requester', 'status', 'hash')):
                 self.__update_queue(job['hash'], job['requester'], 'failed')
             return None
-        return probe.get_metadata()
+        else:
+            if job and all(k in job for k in ('requester', 'status', 'hash')):
+                self.__update_queue(job['hash'], job['requester'], 'ready')
+        return metadata
 
     def __update_queue(self, hash, requester, status):
         self.db.execute(

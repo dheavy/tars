@@ -24,6 +24,8 @@ But the reason I don't mock is because unit/integration tests are supposed to
 improve my designs and ensure nothing brakes if I change something.
 I need my tests to document how to use the system and break when set as close
 as possible to production setup. White box testing is hurting my needs.
+Last but not least: one of the key tenets of those tests is being aware
+ASAP when a probe breaks (e.g. API changes, scrapers void by DOM changes...).
 
 The `#noqa` comments next to some methods is to prevent my current PEP8
 linter to frown at camel case method names.
@@ -58,6 +60,19 @@ class MyPleasureTestCase(unittest.TestCase):
                 status VARCHAR(255) NOT NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)'''
             )
+            self.cur.execute(
+                '''CREATE TABLE IF NOT EXISTS mediastore(
+                id SERIAL PRIMARY KEY,
+                hash VARCHAR(255) NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                origin_url VARCHAR(255) NOT NULL,
+                embed_url VARCHAR(255) NOT NULL,
+                poster VARCHAR(255) NOT NULL,
+                duration VARCHAR(255) NOT NULL,
+                naughty BOOLEAN NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)'''
+            )
             self.conn.commit()
         except psycopg2.DatabaseError, e:
             if self.cur:
@@ -77,6 +92,16 @@ class MyPleasureTestCase(unittest.TestCase):
         finally:
             self.conn.close()
 
+    def prepare_job(self, hash, url, requester, collection_id, status):
+        return {
+            'hash': hash,
+            'url': url,
+            'requester': 1,
+            'collection_id': 1,
+            'status': 'pending',
+            'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+
     def insert_in_mediaqueue(self, hash, url, req_id, collection_id, status):
         try:
             self.cur.execute(
@@ -94,12 +119,16 @@ class MyPleasureTestCase(unittest.TestCase):
             print '\n[TARS] Database Error: %s' % e
             sys.exit(1)
 
-    def get_from_mediaqueue(self, hash):
+    def get_from_mediaqueue(self, hash, full=False):
         try:
-            self.cur.execute(
-                'SELECT hash, status FROM mediaqueue WHERE hash = %s LIMIT 1',
-                (hash,)
-            )
+            if full:
+                self.cur.execute('SELECT hash, url, requester, \
+                    collection_id, status \
+                    FROM mediaqueue \
+                    WHERE hash = %s LIMIT 1', (hash,))
+            else:
+                self.cur.execute('SELECT hash, status FROM mediaqueue \
+                    WHERE hash = %s LIMIT 1', (hash,))
             results = self.cur.fetchall()
             return (
                 len(results) == 1
@@ -121,16 +150,9 @@ class YoutubeFailureReturnsNone(MyPleasureTestCase):
         self.insert_in_mediaqueue(hash, url, 1, 1, 'pending')
 
         tars = Tars(db=self.cur)
-        job = {
-            'hash': hash,
-            'url': url,
-            'requester': 1,
-            'collection_id': 1,
-            'status': 'pending',
-            'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }
-        result = tars.run(job, verbosity=0, reporting=0)
+        job = self.prepare_job(hash, url, 1, 1, 'pending')
 
+        result = tars.run(job, verbosity=0, reporting=0)
         self.assertIs(result, None)
 
 
@@ -142,24 +164,34 @@ class YoutubeFailureMarksStatusAsFailed(MyPleasureTestCase):
         self.insert_in_mediaqueue(hash, url, 1, 1, 'pending')
 
         tars = Tars(db=self.cur)
-        job = {
-            'hash': hash,
-            'url': url,
-            'requester': 1,
-            'collection_id': 1,
-            'status': 'pending',
-            'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        }
+        job = self.prepare_job(hash, url, 1, 1, 'pending')
         tars.run(job, verbosity=0, reporting=0)
-        row = self.get_from_mediaqueue(hash)
 
+        row = self.get_from_mediaqueue(hash)
         self.assertTupleEqual(row, (hash, 'failed'))
+
+
+class YoutubeSuccessMarksStatusAsReady(MyPleasureTestCase):
+
+    def runTest(self): # noqa
+        hash = str(uuid.uuid4())
+        url = 'https://www.youtube.com/watch?v=L03xt-cUc6o'
+        self.insert_in_mediaqueue(hash, url, 1, 1, 'pending')
+
+        tars = Tars(db=self.cur)
+        job = self.prepare_job(hash, url, 1, 1, 'pending')
+        tars.run(job, verbosity=0, reporting=0)
+
+        row = self.get_from_mediaqueue(hash, full=True)
+        self.assertEqual(hash, row[0])
+        self.assertTupleEqual(row, (hash, url, 1, 1, 'ready'))
 
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(YoutubeFailureReturnsNone())
     suite.addTest(YoutubeFailureMarksStatusAsFailed())
+    suite.addTest(YoutubeSuccessMarksStatusAsReady())
     return suite
 
 
