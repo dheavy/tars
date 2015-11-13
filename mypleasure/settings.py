@@ -22,3 +22,9 @@ DB_TABLE_STORE = os.environ.get('DB_TABLE_STORE', '')
 DB_TABLE_QUEUE = os.environ.get('DB_TABLE_QUEUE', '')
 
 YOUTUBE_API_KEY = os.environ.get('YOUTUBE_API_KEY', '')
+
+EMAIL_SMTP_SERVER = os.environ.get('EMAIL_SMTP_SERVER', '')
+EMAIL_SMTP_PORT = os.environ.get('EMAIL_SMTP_PORT', '')
+EMAIL_SMTP_RECIPIENT = os.environ.get('EMAIL_SMTP_RECIPIENT', '')
+EMAIL_SMTP_USER = os.environ.get('EMAIL_SMTP_USER', '')
+EMAIL_SMTP_PWD = os.environ.get('EMAIL_SMTP_PWD', '')
