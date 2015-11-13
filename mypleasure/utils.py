@@ -27,7 +27,7 @@ class Logger:
         self.verbosity = verbosity
         self.reporting = reporting
 
-        self.email_server = smtplib.SMTP(
+        self.email = smtplib.SMTP(
             settings.EMAIL_SMTP_SERVER, settings.EMAIL_SMTP_PORT
         )
 
@@ -82,19 +82,19 @@ class Logger:
         msg.attach(MIMEText(body, 'plain'))
 
         try:
-            self.email_server.starttls()
-            self.email_server.login(
+            self.email.starttls()
+            self.email.login(
                 settings.EMAIL_SMTP_USER, settings.EMAIL_SMTP_PWD
             )
-            self.email_server.sendmail(
+            self.email.sendmail(
                 settings.EMAIL_SMTP_RECIPIENT,
                 settings.EMAIL_SMTP_RECIPIENT,
                 msg.as_string()
             )
-            self.email_server.quit()
+            self.email.quit()
         except:
+            # TODO - log email error to file
             pass
 
     def __slack(self, msg):
         self.__logfile(msg)
-        pass
