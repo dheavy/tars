@@ -28,3 +28,5 @@ EMAIL_SMTP_PORT = os.environ.get('EMAIL_SMTP_PORT', '')
 EMAIL_SMTP_RECIPIENT = os.environ.get('EMAIL_SMTP_RECIPIENT', '')
 EMAIL_SMTP_USER = os.environ.get('EMAIL_SMTP_USER', '')
 EMAIL_SMTP_PWD = os.environ.get('EMAIL_SMTP_PWD', '')
+
+SLACK_API_KEY = os.environ('SLACK_API_KEY', '')
