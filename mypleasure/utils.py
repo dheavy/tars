@@ -2,11 +2,12 @@
 # import logging
 import smtplib
 from datetime import datetime
-from mypleasure import settings
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
 from email.utils import formataddr
+from pyslack import SlackClient
+from mypleasure import settings
 
 
 class Logger:
@@ -30,6 +31,8 @@ class Logger:
         self.email = smtplib.SMTP(
             settings.EMAIL_SMTP_SERVER, settings.EMAIL_SMTP_PORT
         )
+
+        self.slack = SlackClient(settings.SLACK_API_KEY)
 
     def trace(self, msg):
         if self.verbosity > 0:
@@ -96,5 +99,12 @@ class Logger:
             # TODO - log email error to file
             pass
 
-    def __slack(self, msg):
-        self.__logfile(msg)
+    def __slack(self, report):
+        self.__logfile(report)
+        try:
+            self.slack.chat_post_message(
+                settings.SLACK_CHAT_ROOM, report['message'], username='TARS'
+            )
+        except:
+            # TODO - log Slack error to file
+            pass
