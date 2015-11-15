@@ -31,3 +31,5 @@ EMAIL_SMTP_PWD = os.environ.get('EMAIL_SMTP_PWD', '')
 
 SLACK_API_KEY = os.environ.get('SLACK_API_KEY', '')
 SLACK_CHAT_ROOM = os.environ.get('SLACK_CHAT_ROOM', '')
+
+LOG_FILE = os.environ.get('LOG_FILE')
