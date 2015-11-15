@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# import logging
+import logging
 import smtplib
 from datetime import datetime
 from email.mime.text import MIMEText
@@ -34,6 +34,15 @@ class Logger:
 
         self.slack = SlackClient(settings.SLACK_API_KEY)
 
+        self.file = logging.getLogger('tars')
+        filehandler = logging.FileHandler(settings.LOG_FILE)
+        logformatter = logging.Formatter(
+            '%(asctime)s %(levelname)s %(message)s'
+        )
+        filehandler.setFormatter(logformatter)
+        self.file.addHandler(filehandler)
+        self.file.setLevel(logging.WARNING)
+
     def trace(self, msg):
         if self.verbosity > 0:
             print(msg)
@@ -67,7 +76,7 @@ class Logger:
             self.__email(report)
 
     def __logfile(self, report):
-        pass
+        self.file.error(report)
 
     def __email(self, report):
         self.__logfile(report)
