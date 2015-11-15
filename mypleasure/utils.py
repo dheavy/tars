@@ -59,11 +59,11 @@ class Logger:
 
         # Send Slack message to dedicated channel
         # (and log to file) if specified.
-        if self.reporting == 2:
+        if self.reporting == 2 or self.reporting == 4:
             self.__slack(report)
 
         # Send email report (and log to file) if specified.
-        if self.reporting == 3:
+        if self.reporting == 3 or self.reporting == 4:
             self.__email(report)
 
     def __logfile(self, report):
