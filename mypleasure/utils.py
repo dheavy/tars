@@ -14,7 +14,6 @@ from mypleasure import settings
 class Logger:
 
     def __init__(self, verbosity=1, reporting=1):
-        print(settings)
         '''
         Logger util for relevant data and errors.
 
@@ -39,10 +38,18 @@ class Logger:
         # Set up logging to files.
         self.file = logging.getLogger(__name__)
         debug_handler = logging.handlers.RotatingFileHandler(
-            settings.DEBUG_LOG_FILE
+            settings.DEBUG_LOG_FILE,
+            mode=settings.LOG_FILE_WRITE_MODE,
+            maxBytes=settings.LOG_FILE_BACKUP_COUNT,
+            backupCount=settings.LOG_FILE_BACKUP_COUNT,
+            encoding='utf-8'
         )
         error_handler = logging.handlers.RotatingFileHandler(
-            settings.ERROR_LOG_FILE
+            settings.ERROR_LOG_FILE,
+            mode=settings.LOG_FILE_WRITE_MODE,
+            maxBytes=settings.LOG_FILE_BACKUP_COUNT,
+            backupCount=settings.LOG_FILE_BACKUP_COUNT,
+            encoding='utf-8'
         )
         logformatter = logging.Formatter(
             '%(asctime)s %(levelname)s %(message)s'

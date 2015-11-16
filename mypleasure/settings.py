@@ -34,3 +34,6 @@ SLACK_CHAT_ROOM = os.environ.get('SLACK_CHAT_ROOM', '')
 
 DEBUG_LOG_FILE = os.environ.get('DEBUG_LOG_FILE')
 ERROR_LOG_FILE = os.environ.get('ERROR_LOG_FILE')
+LOG_FILE_WRITE_MODE = os.environ.get('LOG_FILE_WRITE_MODE')
+LOG_FILE_MAX_BYTES = os.environ.get('LOG_FILE_MAX_BYTES')
+LOG_FILE_BACKUP_COUNT = os.environ.get('LOG_FILE_BACKUP_COUNT')
