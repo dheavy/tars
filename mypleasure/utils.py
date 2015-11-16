@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import logging.handlers
 import smtplib
 from datetime import datetime
 from email.mime.text import MIMEText
@@ -19,6 +20,7 @@ class Logger:
 
         Args:
             verbosity: 0 silences logger in console, 1 prints output.
+                Logging to file is active at any level.
             reporting: 0 silences reporting, 1 logs into logfile,
                 2 sends Slack message only,
                 3 sends email only,
@@ -34,18 +36,27 @@ class Logger:
 
         self.slack = SlackClient(settings.SLACK_API_KEY)
 
-        self.file = logging.getLogger('tars')
-        filehandler = logging.FileHandler(settings.LOG_FILE)
+        # Set up logging to files.
+        self.file = logging.getLogger(__name__)
+        debug_handler = logging.handlers.RotatingFileHandler(
+            settings.DEBUG_LOG_FILE
+        )
+        error_handler = logging.handlers.RotatingFileHandler(
+            settings.ERROR_LOG_FILE
+        )
         logformatter = logging.Formatter(
             '%(asctime)s %(levelname)s %(message)s'
         )
-        filehandler.setFormatter(logformatter)
-        self.file.addHandler(filehandler)
-        self.file.setLevel(logging.WARNING)
+        debug_handler.setFormatter(logformatter)
+        error_handler.setFormatter(logformatter)
+        self.file.addHandler(debug_handler)
+        self.file.addHandler(error_handler)
+        self.file.setLevel(logging.ERROR)
 
     def trace(self, msg):
         if self.verbosity > 0:
             print(msg)
+        self.__debug_to_file(msg)
 
     def error(self, url='', msg='', data=None):
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -64,7 +75,7 @@ class Logger:
 
         # Log to file if specified.
         if self.reporting == 1:
-            self.__logfile(report)
+            self.__error_to_file(report)
 
         # Send Slack message to dedicated channel
         # (and log to file) if specified.
@@ -75,11 +86,14 @@ class Logger:
         if self.reporting == 3 or self.reporting == 4:
             self.__email(report)
 
-    def __logfile(self, report):
+    def __debug_to_file(self, msg):
+        self.file.debug(msg)
+
+    def __error_to_file(self, report):
         self.file.error(report)
 
     def __email(self, report):
-        self.__logfile(report)
+        self.__error_to_file(report)
 
         msg = MIMEMultipart()
         msg['Subject'] = '[ERROR] ' + report['url'] + ' @ '
@@ -109,7 +123,7 @@ class Logger:
             pass
 
     def __slack(self, report):
-        self.__logfile(report)
+        self.__error_to_file(report)
         try:
             self.slack.chat_post_message(
                 settings.SLACK_CHAT_ROOM, report['message'], username='TARS'
