@@ -12,11 +12,13 @@ class Youporn(Base):
         markup = self.__get_page_markup(self.url)
         try:
             id = self.__get_id(self.url)
-            data = self.__parse_data(markup, id)
-            return data
+            metadata = self.__parse_data(markup, id)
         except:
             self.failed = True
-            return None
+            metadata = None
+        finally:
+            markup.decompose()
+            return metadata
 
     def __get_page_markup(self, url):
         try:
@@ -28,14 +30,15 @@ class Youporn(Base):
                 'Request on Youporn URL:' + url + '\n' +
                 'Something went wrong when requesting URL....'
             )
-        return res
+        finally:
+            return res
 
     def __get_id(self, url):
         return re.search("watch/(\d+)/", url).group(1)
 
     def __parse_data(self, markup, id):
-        self.metadata['title'] = markup.select('#watchHeader h1')[0].string
-        self.metadata['original_url'] = self.url
+        self.metadata['title'] = markup.select('h1.heading2')[0].string
+        self.metadata['original_url'] = self.__cleanup_url(self.url)
         self.metadata['embed_url'] = '//www.youporn.com/embed/' + id
         self.metadata['poster'] = markup.select('#player-html5')[0]['poster']
         self.metadata['duration'] = self.__get_duration(
@@ -43,6 +46,11 @@ class Youporn(Base):
         )
         self.metadata['naughty'] = True
         return self.metadata
+
+    def __cleanup_url(self, url):
+        if '?' in url:
+            url = url[:url.find('?')]
+        return url
 
     def __get_duration(self, url, title):
         try:
