@@ -2,6 +2,7 @@
 import logging
 import logging.handlers
 import smtplib
+from socket import gaierror
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -29,36 +30,16 @@ class Logger:
         self.verbosity = verbosity
         self.reporting = reporting
 
-        self.email = smtplib.SMTP(
-            settings.EMAIL_SMTP_SERVER, settings.EMAIL_SMTP_PORT
-        )
+        self.__setup_file_logging()
+
+        try:
+            self.email = smtplib.SMTP(
+                settings.EMAIL_SMTP_SERVER, settings.EMAIL_SMTP_PORT
+            )
+        except gaierror, e:
+            self.__error_to_file(e)
 
         self.slack = SlackClient(settings.SLACK_API_KEY)
-
-        # Set up logging to files.
-        self.file = logging.getLogger(__name__)
-        debug_handler = logging.handlers.RotatingFileHandler(
-            settings.DEBUG_LOG_FILE,
-            mode=settings.LOG_FILE_WRITE_MODE,
-            maxBytes=settings.LOG_FILE_BACKUP_COUNT,
-            backupCount=settings.LOG_FILE_BACKUP_COUNT,
-            encoding='utf-8'
-        )
-        error_handler = logging.handlers.RotatingFileHandler(
-            settings.ERROR_LOG_FILE,
-            mode=settings.LOG_FILE_WRITE_MODE,
-            maxBytes=settings.LOG_FILE_BACKUP_COUNT,
-            backupCount=settings.LOG_FILE_BACKUP_COUNT,
-            encoding='utf-8'
-        )
-        logformatter = logging.Formatter(
-            '%(asctime)s %(levelname)s %(message)s'
-        )
-        debug_handler.setFormatter(logformatter)
-        error_handler.setFormatter(logformatter)
-        self.file.addHandler(debug_handler)
-        self.file.addHandler(error_handler)
-        self.file.setLevel(logging.ERROR)
 
     def trace(self, msg):
         if self.verbosity > 0:
@@ -92,6 +73,31 @@ class Logger:
         # Send email report (and log to file) if specified.
         if self.reporting == 3 or self.reporting == 4:
             self.__email(report)
+
+    def __setup_file_logging(self):
+        self.file = logging.getLogger(__name__)
+        debug_handler = logging.handlers.RotatingFileHandler(
+            settings.DEBUG_LOG_FILE,
+            mode=settings.LOG_FILE_WRITE_MODE,
+            maxBytes=settings.LOG_FILE_BACKUP_COUNT,
+            backupCount=settings.LOG_FILE_BACKUP_COUNT,
+            encoding='utf-8'
+        )
+        error_handler = logging.handlers.RotatingFileHandler(
+            settings.ERROR_LOG_FILE,
+            mode=settings.LOG_FILE_WRITE_MODE,
+            maxBytes=settings.LOG_FILE_BACKUP_COUNT,
+            backupCount=settings.LOG_FILE_BACKUP_COUNT,
+            encoding='utf-8'
+        )
+        logformatter = logging.Formatter(
+            '%(asctime)s %(levelname)s %(message)s'
+        )
+        debug_handler.setFormatter(logformatter)
+        error_handler.setFormatter(logformatter)
+        self.file.addHandler(debug_handler)
+        self.file.addHandler(error_handler)
+        self.file.setLevel(logging.ERROR)
 
     def __debug_to_file(self, msg):
         self.file.debug(msg)
