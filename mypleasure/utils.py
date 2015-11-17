@@ -126,7 +126,7 @@ class Logger:
             )
             self.email.quit()
         except:
-            # TODO - log email error to file
+            self.__error_to_file('Error while sending email report...')
             pass
 
     def __slack(self, report):
@@ -136,5 +136,5 @@ class Logger:
                 settings.SLACK_CHAT_ROOM, report['message'], username='TARS'
             )
         except:
-            # TODO - log Slack error to file
+            self.__error_to_file('Error while sending Slack report...')
             pass
