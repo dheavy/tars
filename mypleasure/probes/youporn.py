@@ -17,7 +17,8 @@ class Youporn(Base):
             self.failed = True
             metadata = None
         finally:
-            markup.decompose()
+            if markup:
+                markup.decompose()
             return metadata
 
     def __get_page_markup(self, url):
