@@ -27,7 +27,7 @@ class Tars:
     def __init__(self, db=None):
         self.db = db
 
-    def run(self, job, url=None, verbosity=1, reporting=1):
+    def run(self, job, url=None, verbosity=1, reporting=0):
         '''
         Runs a fetching job. Delegates to relevant probe based on given URL.
 
@@ -73,9 +73,10 @@ class Tars:
         else:
             probe = self.__probe_from_url(url)
 
-        metadata = probe.get_metadata()
+        if probe:
+            metadata = probe.get_metadata()
 
-        if probe.failed:
+        if probe is None or probe.failed:
             if job and all(k in job for k in ('requester', 'status', 'hash')):
                 self.__update_queue(job['hash'], job['requester'], 'failed')
             return None
