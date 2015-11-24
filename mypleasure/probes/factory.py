@@ -20,6 +20,11 @@ def create(name, url, logconfig=None):
     # Initialize variable class instance we're expecting to return.
     class_inst = None
 
+    # Special case for Facebook. Change name to 'fb' to avoid
+    # shadowing the dedicated SDK module of the same name.
+    if name == 'facebook':
+        name = 'fb'
+
     # Capitalize the name passed as argument to (hopefully)
     # obtain the name of the class we're expecting to instantiate,
     # and build the file path to its file.
@@ -42,5 +47,4 @@ def create(name, url, logconfig=None):
         class_inst = getattr(py_module, expected_class)(
             url, logconfig=logconfig
         )
-
     return class_inst
