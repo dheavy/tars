@@ -89,7 +89,7 @@ def run():
         if metadata:
             print metadata
         else:
-            print 'No metadata... TARS probably failed.'
+            print '\n----\nNo metadata... TARS probably failed.'
     else:
         # Prepare a set (no duplicates!) of queue elements with
         # "pending" status. Turn them into a list of processable
