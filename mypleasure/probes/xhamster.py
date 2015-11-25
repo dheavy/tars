@@ -56,7 +56,9 @@ class Xhamster(Base):
 
     def __get_poster(self, markup):
         try:
-            player_settings = re.search("(vars:\s{.*\"}})", str(markup)).group(1)
+            player_settings = re.search(
+                "(vars:\s{.*\"}})", str(markup)
+            ).group(1)
             image = re.search(
                 "\"image\":\"http:([^\"]*)", player_settings
             ).group(1)
