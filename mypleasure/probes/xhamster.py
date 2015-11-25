@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# http://xhamster.com/movies/4476488/
+# hotgold_two_slutty_czech_babes_love_taking_it_up_the_ass.html
+# ?from=video_promo
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -28,6 +31,8 @@ class Xhamster(Base):
                 'Request on Xhamster URL:' + url + '\n' +
                 'Something went wrong when requesting URL....'
             )
+        finally:
+            return res
 
     def __get_id(self, url):
         return re.search("movies/(\d+)/", url).group(1)
@@ -36,13 +41,18 @@ class Xhamster(Base):
         self.metadata['title'] = markup.select(
             '#playerBox h1'
         )[0].string.strip()
-        self.metadata['original_url'] = self.url
+        self.metadata['original_url'] = self.__get_original_url(self.url)
         self.metadata['embed_url'] = '//xhamster.com/xembed.php?video=' + id
         self.metadata['poster'] = self.__get_poster(markup)
         self.metadata['duration'] = self.__get_duration(markup)
         self.metadata['naughty'] = True
         markup.decompose()
         return self.metadata
+
+    def __get_original_url(self, url):
+        if '?' in url:
+            url = url[:url.rfind('?')]
+        return url
 
     def __get_poster(self, markup):
         try:
