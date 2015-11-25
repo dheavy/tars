@@ -56,10 +56,20 @@ class Xhamster(Base):
 
     def __get_poster(self, markup):
         try:
-            return markup.select('#player video')[0]['poster']
-        except:
-            pass
-        return ''
+            player_settings = re.search("(vars:\s{.*\"}})", str(markup)).group(1)
+            image = re.search(
+                "\"image\":\"http:([^\"]*)", player_settings
+            ).group(1)
+            poster = image.replace('\/', '/')
+        except Exception, e:
+            poster = ''
+            self.fail(
+                'Request on XHamster URL: ' + self.url + '\n' +
+                'Something went wrong when getting poster...',
+                data=e
+            )
+        finally:
+            return poster
 
     def __get_duration(self, markup):
         tag = str(markup.select('#videoUser div.item')[1])
