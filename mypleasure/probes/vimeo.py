@@ -27,7 +27,8 @@ class Vimeo(Base):
                 'Request on Vimeo URL:' + url + '\n' +
                 'Something went wrong when requesting URL....'
             )
-        return res
+        finally:
+            return res
 
     def __get_id(self, markup):
         if markup:

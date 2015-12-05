@@ -28,7 +28,8 @@ class Xvideos(Base):
                 'Request on Xvideos URL:' + url + '\n' +
                 'Something went wrong when requesting URL....'
             )
-        return res
+        finally:
+            return res
 
     def __get_id(self, url):
         return re.search("/video(\d+)/", self.url).group(1)
@@ -37,7 +38,7 @@ class Xvideos(Base):
         self.metadata['title'] = self.__get_title(markup)
         self.metadata['original_url'] = self.url
         self.metadata['embed_url'] = (
-            '//flashservice.xvideos.com/embedframe/', id
+            '//flashservice.xvideos.com/embedframe/' + id
         )
         self.metadata['poster'] = self.__get_poster(markup)
         self.metadata['duration'] = self.__get_duration(markup)

@@ -47,7 +47,7 @@ class Dailymotion(Base):
         return self.metadata
 
     def __get_embed_url(self, id):
-        return '//www.dailymotion.com/embed/video/'.format(id)
+        return '//www.dailymotion.com/embed/video/' + id
 
     def __get_duration(self, json):
         minutes, seconds = divmod(json['duration'], 60)
