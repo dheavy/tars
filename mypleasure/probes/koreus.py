@@ -72,8 +72,8 @@ class Koreus(Base):
 
     def __get_poster(self, markup):
         try:
-            meta = markup.select('link[rel="image_src"]')[0]
-            return meta['href']
+            meta = markup.select('meta[property="og:image"]')[0]
+            return meta['content']
         except Exception, e:
             self.fail(
                 'Request on Koreus URL:' + self.url + '\n' +
