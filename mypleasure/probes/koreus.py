@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
-import time
 import requests
-from selenium import webdriver
+import subprocess
 from bs4 import BeautifulSoup
 from mypleasure.probes.base import Base
 
@@ -55,7 +54,7 @@ class Koreus(Base):
             '//www.koreus.com/embed/' + id
         )
         self.metadata['poster'] = self.__get_poster(markup)
-        self.metadata['duration'] = self.__get_duration()
+        self.metadata['duration'] = self.__get_duration(markup)
         self.metadata['naughty'] = False
         return self.metadata
 
@@ -83,27 +82,33 @@ class Koreus(Base):
             )
             return None
 
-    def __get_duration(self):
+    def __get_duration(self, markup):
         try:
-            # Load page in browser. Simulate user clicking
-            # on player to start the movie and display duration.
-            driver = webdriver.Firefox()
-            driver.get(self.url)
-            player = driver.find_element_by_id('videoDiv')
-            player.click()
-            time.sleep(3)
-            markup = BeautifulSoup(driver.page_source, 'lxml')
-            elm = markup.select('.jw-text-duration')[0].string
+            # Get duration directly from video metadata.
+            filename = re.search(
+                '(?:file:\s")([^\"].*)(.mp4)', str(markup)
+            ).group(1)
+            filename += '.mp4'
 
-            # Format duration.
-            if len(elm) == 5:
-                duration = '00:' + elm
-            return duration
+            video = subprocess.Popen(
+                ['ffprobe', filename],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
+
+            duration = [x for x in video.stdout.readlines() if 'Duration' in x]
+            duration = duration[0]
+            duration = re.search(
+                "(?:(?:\[)?(?:\')?(?:\s*)"
+                "?Duration:(?:\s*)?)(\d{2}:\d{2}:\d{2})",
+                duration
+            ).group(1)
         except Exception, e:
+            duration = '--:--:--'
             self.fail(
                 'Request on Koreus URL:' + self.url + '\n' +
                 'Something went wrong when getting duration...',
                 data=e
             )
         finally:
-            driver.quit()
+            return duration
